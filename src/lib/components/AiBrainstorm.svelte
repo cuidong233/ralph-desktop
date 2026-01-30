@@ -33,14 +33,126 @@
   let selectedCli = $state<CliType>($config.defaultCli);
   let maxIterations = $state($config.defaultMaxIterations);
 
-  const prefersZh = typeof navigator !== 'undefined'
-    && (navigator.language || '').toLowerCase().startsWith('zh');
-  const uiCopy = prefersZh ? {
-    initialQuestion: '你想做什么？',
-    initialDescription: '请简单描述一下你的任务',
-    fallbackQuestion: '请继续描述你的需求',
-    fallbackDescription: '出现了一些问题，请重试',
-  } : {
+  const locale = (() => {
+    if (typeof navigator === 'undefined') return 'en';
+    const lang = (navigator.language || '').toLowerCase();
+    if (lang.startsWith('zh')) return 'zh';
+    if (lang.startsWith('ja')) return 'ja';
+    if (lang.startsWith('ko')) return 'ko';
+    return 'en';
+  })();
+
+  const uiCopy = {
+    zh: {
+      title: 'AI Brainstorm',
+      questionLabel: '问题',
+      completeLabel: '完成',
+      thinkingLabel: '思考中...',
+      requirementsComplete: '需求收集完成 ✓',
+      generatedPromptDesc: '已生成任务描述',
+      cliLabel: 'CLI',
+      maxIterationsLabel: '最大迭代次数',
+      otherLabel: '其他',
+      answerPlaceholder: '请输入你的回答...',
+      loadingLabel: '加载中...',
+      backLabel: '返回',
+      escToCancelSuffix: ' 取消',
+      cancelLabel: '取消',
+      startExecution: '开始执行 →',
+      submitLabel: '提交',
+      continueLabel: '继续 →',
+      initialQuestion: '你想做什么？',
+      initialDescription: '请简单描述一下你的任务',
+      fallbackQuestion: '请继续描述你的需求',
+      fallbackDescription: '出现了一些问题，请重试',
+    },
+    en: {
+      title: 'AI Brainstorm',
+      questionLabel: 'Question',
+      completeLabel: 'Complete',
+      thinkingLabel: 'Thinking...',
+      requirementsComplete: 'Requirements Complete ✓',
+      generatedPromptDesc: 'Generated task description',
+      cliLabel: 'CLI',
+      maxIterationsLabel: 'Max Iterations',
+      otherLabel: 'Other',
+      answerPlaceholder: 'Enter your answer...',
+      loadingLabel: 'Loading...',
+      backLabel: 'Back',
+      escToCancelSuffix: ' to cancel',
+      cancelLabel: 'Cancel',
+      startExecution: 'Start Execution →',
+      submitLabel: 'Submit',
+      continueLabel: 'Continue →',
+      initialQuestion: 'What do you want to do?',
+      initialDescription: 'Briefly describe your task',
+      fallbackQuestion: 'Please continue describing your requirements',
+      fallbackDescription: 'Something went wrong, please try again',
+    },
+    ja: {
+      title: 'AI ブレインストーム',
+      questionLabel: '質問',
+      completeLabel: '完了',
+      thinkingLabel: '考え中...',
+      requirementsComplete: '要件確定 ✓',
+      generatedPromptDesc: 'タスク説明を生成しました',
+      cliLabel: 'CLI',
+      maxIterationsLabel: '最大反復回数',
+      otherLabel: 'その他',
+      answerPlaceholder: '回答を入力...',
+      loadingLabel: '読み込み中...',
+      backLabel: '戻る',
+      escToCancelSuffix: 'でキャンセル',
+      cancelLabel: 'キャンセル',
+      startExecution: '実行開始 →',
+      submitLabel: '送信',
+      continueLabel: '続ける →',
+      initialQuestion: '何をしたいですか？',
+      initialDescription: 'タスクを簡単に説明してください',
+      fallbackQuestion: '要件をもう少し教えてください',
+      fallbackDescription: '問題が発生しました。もう一度お試しください',
+    },
+    ko: {
+      title: 'AI 브레인스토밍',
+      questionLabel: '질문',
+      completeLabel: '완료',
+      thinkingLabel: '생각 중...',
+      requirementsComplete: '요구사항 완료 ✓',
+      generatedPromptDesc: '작업 설명이 생성되었습니다',
+      cliLabel: 'CLI',
+      maxIterationsLabel: '최대 반복 횟수',
+      otherLabel: '기타',
+      answerPlaceholder: '답변을 입력하세요...',
+      loadingLabel: '로딩 중...',
+      backLabel: '뒤로',
+      escToCancelSuffix: '로 취소',
+      cancelLabel: '취소',
+      startExecution: '실행 시작 →',
+      submitLabel: '제출',
+      continueLabel: '계속 →',
+      initialQuestion: '무엇을 하고 싶나요?',
+      initialDescription: '작업을 간단히 설명해주세요',
+      fallbackQuestion: '요구사항을 계속 설명해주세요',
+      fallbackDescription: '문제가 발생했습니다. 다시 시도해주세요',
+    },
+  }[locale] ?? {
+    title: 'AI Brainstorm',
+    questionLabel: 'Question',
+    completeLabel: 'Complete',
+    thinkingLabel: 'Thinking...',
+    requirementsComplete: 'Requirements Complete ✓',
+    generatedPromptDesc: 'Generated task description',
+    cliLabel: 'CLI',
+    maxIterationsLabel: 'Max Iterations',
+    otherLabel: 'Other',
+    answerPlaceholder: 'Enter your answer...',
+    loadingLabel: 'Loading...',
+    backLabel: 'Back',
+    escToCancelSuffix: ' to cancel',
+    cancelLabel: 'Cancel',
+    startExecution: 'Start Execution →',
+    submitLabel: 'Submit',
+    continueLabel: 'Continue →',
     initialQuestion: 'What do you want to do?',
     initialDescription: 'Briefly describe your task',
     fallbackQuestion: 'Please continue describing your requirements',
@@ -245,17 +357,17 @@
   <div class="px-6 pt-4 pb-3 border-b border-vscode">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-vscode">AI Brainstorm</span>
+        <span class="text-sm text-vscode">{uiCopy.title}</span>
         {#if conversation.length > 0}
           <span class="text-xs text-vscode-muted">
-            · Question {Math.floor(conversation.filter(m => m.role === 'user').length) + (generatedPrompt ? 0 : 1)}
+            · {uiCopy.questionLabel} {Math.floor(conversation.filter(m => m.role === 'user').length) + (generatedPrompt ? 0 : 1)}
           </span>
         {/if}
       </div>
       {#if generatedPrompt}
-        <span class="text-xs text-[#4ec9b0]">Complete</span>
+        <span class="text-xs text-[#4ec9b0]">{uiCopy.completeLabel}</span>
       {:else if isLoading}
-        <span class="text-xs text-vscode-muted">Thinking...</span>
+        <span class="text-xs text-vscode-muted">{uiCopy.thinkingLabel}</span>
       {/if}
     </div>
   </div>
@@ -265,14 +377,14 @@
     {#if isLoading}
       <div class="flex items-center gap-3 text-vscode-dim">
         <div class="animate-spin h-4 w-4 border-2 border-vscode-border border-t-vscode-accent rounded-full"></div>
-        <span class="text-sm">Thinking...</span>
+        <span class="text-sm">{uiCopy.thinkingLabel}</span>
       </div>
     {:else if generatedPrompt}
       <!-- Completion state -->
       <div class="space-y-4">
         <div>
-          <h2 class="text-base font-medium text-vscode mb-1">Requirements Complete ✓</h2>
-          <p class="text-sm text-vscode-dim">Generated task description</p>
+          <h2 class="text-base font-medium text-vscode mb-1">{uiCopy.requirementsComplete}</h2>
+          <p class="text-sm text-vscode-dim">{uiCopy.generatedPromptDesc}</p>
         </div>
 
         <div class="bg-vscode-input rounded p-3 max-h-48 overflow-y-auto border border-vscode">
@@ -281,7 +393,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs text-vscode-dim mb-1.5">CLI</label>
+            <label class="block text-xs text-vscode-dim mb-1.5">{uiCopy.cliLabel}</label>
             <select
               class="w-full h-10 px-3 text-sm rounded border border-vscode bg-vscode-input"
               bind:value={selectedCli}
@@ -291,7 +403,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs text-vscode-dim mb-1.5">Max Iterations</label>
+            <label class="block text-xs text-vscode-dim mb-1.5">{uiCopy.maxIterationsLabel}</label>
             <input
               type="number"
               class="w-full h-10 px-3 text-sm rounded border border-vscode bg-vscode-input"
@@ -366,7 +478,7 @@
                       </svg>
                     {/if}
                   </div>
-                  <div class="font-medium">Other</div>
+                  <div class="font-medium">{uiCopy.otherLabel}</div>
                 </div>
               </button>
             {/if}
@@ -378,7 +490,7 @@
               <textarea
                 class="w-full p-3 rounded text-sm resize-none"
                 rows="2"
-                placeholder="Enter your answer..."
+                placeholder={uiCopy.answerPlaceholder}
                 bind:value={customInput}
                 onkeydown={handleKeydown}
               ></textarea>
@@ -390,7 +502,7 @@
             <textarea
               class="w-full p-3 rounded text-sm resize-none"
               rows="3"
-              placeholder="Enter your answer..."
+              placeholder={uiCopy.answerPlaceholder}
               bind:value={customInput}
               onkeydown={handleKeydown}
             ></textarea>
@@ -401,7 +513,7 @@
       <!-- Fallback: no question loaded -->
       <div class="flex items-center gap-3 text-vscode-dim">
         <div class="animate-spin h-4 w-4 border-2 border-vscode-border border-t-vscode-accent rounded-full"></div>
-        <span class="text-sm">Loading...</span>
+        <span class="text-sm">{uiCopy.loadingLabel}</span>
       </div>
     {/if}
   </div>
@@ -417,12 +529,12 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
-          Back
+          {uiCopy.backLabel}
         </button>
       {/if}
       <span class="text-xs text-vscode-muted">
         {#if !generatedPrompt}
-          <kbd class="px-1.5 py-0.5 bg-vscode-input rounded text-xs border border-vscode">Esc</kbd> to cancel
+          <kbd class="px-1.5 py-0.5 bg-vscode-input rounded text-xs border border-vscode">Esc</kbd>{uiCopy.escToCancelSuffix}
         {/if}
       </span>
     </div>
@@ -433,14 +545,14 @@
           class="px-3 py-1.5 text-sm text-vscode-dim hover:text-vscode"
           onclick={onCancel}
         >
-          Cancel
+          {uiCopy.cancelLabel}
         </button>
         <button
           class="px-4 py-1.5 bg-vscode-accent hover:bg-vscode-accent-hover text-white rounded text-sm disabled:opacity-50"
           onclick={handleComplete}
           disabled={isLoading}
         >
-          Start Execution →
+          {uiCopy.startExecution}
         </button>
       {:else if currentQuestion}
         {#if currentQuestion.multiSelect && (selectedOptions.size > 0 || (showOtherInput && customInput.trim()))}
@@ -449,7 +561,7 @@
             onclick={handleSubmitMultiple}
           >
             <span class="opacity-70 mr-1">{selectedOptions.size + (showOtherInput && customInput.trim() ? 1 : 0)}</span>
-            Submit
+            {uiCopy.submitLabel}
           </button>
         {:else if currentQuestion.options.length === 0}
           <button
@@ -457,7 +569,7 @@
             onclick={handleSubmitText}
             disabled={!customInput.trim()}
           >
-            Continue →
+            {uiCopy.continueLabel}
           </button>
         {:else if showOtherInput && !currentQuestion.multiSelect}
           <button
@@ -465,7 +577,7 @@
             onclick={handleSubmitText}
             disabled={!customInput.trim()}
           >
-            Continue →
+            {uiCopy.continueLabel}
           </button>
         {/if}
       {/if}

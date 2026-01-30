@@ -229,10 +229,23 @@ fn parse_ai_response(output: &str) -> Result<AiBrainstormResponse, String> {
 
             // Check if it looks like a completion
             if trimmed.contains("<done>COMPLETE</done>") {
-                let (question, description) = if contains_cjk(trimmed) {
-                    ("需求收集完成".to_string(), "已生成任务 prompt".to_string())
-                } else {
-                    ("Requirements complete".to_string(), "Generated task prompt".to_string())
+                let (question, description) = match detect_language(trimmed) {
+                    DetectedLanguage::Zh => (
+                        "需求收集完成".to_string(),
+                        "已生成任务 prompt".to_string(),
+                    ),
+                    DetectedLanguage::Ja => (
+                        "要件確定".to_string(),
+                        "タスクの prompt を生成しました".to_string(),
+                    ),
+                    DetectedLanguage::Ko => (
+                        "요구사항 완료".to_string(),
+                        "작업 prompt가 생성되었습니다".to_string(),
+                    ),
+                    DetectedLanguage::Other => (
+                        "Requirements complete".to_string(),
+                        "Generated task prompt".to_string(),
+                    ),
                 };
                 Ok(AiBrainstormResponse {
                     question,
@@ -293,6 +306,39 @@ fn extract_json(output: &str) -> Result<String, String> {
     }
 
     Err(format!("No JSON found in output: {}", output))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DetectedLanguage {
+    Zh,
+    Ja,
+    Ko,
+    Other,
+}
+
+fn detect_language(input: &str) -> DetectedLanguage {
+    if contains_hangul(input) {
+        return DetectedLanguage::Ko;
+    }
+    if contains_kana(input) {
+        return DetectedLanguage::Ja;
+    }
+    if contains_cjk(input) {
+        return DetectedLanguage::Zh;
+    }
+    DetectedLanguage::Other
+}
+
+fn contains_kana(input: &str) -> bool {
+    input.chars().any(|ch| {
+        ('\u{3040}'..='\u{309F}').contains(&ch)
+            || ('\u{30A0}'..='\u{30FF}').contains(&ch)
+            || ('\u{31F0}'..='\u{31FF}').contains(&ch)
+    })
+}
+
+fn contains_hangul(input: &str) -> bool {
+    input.chars().any(|ch| ('\u{AC00}'..='\u{D7AF}').contains(&ch))
 }
 
 fn contains_cjk(input: &str) -> bool {
