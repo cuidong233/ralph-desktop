@@ -1,4 +1,6 @@
 use super::*;
+use crate::engine::brainstorm::generate_design_doc;
+use std::path::PathBuf;
 
 /// List all projects
 #[tauri::command]
@@ -155,6 +157,15 @@ pub async fn complete_brainstorm(
     // Generate prompt
     let prompt = generate_prompt(&answers_map);
 
+    // Generate design document
+    let project_path = PathBuf::from(&state.path);
+    let design_doc_path = generate_design_doc(
+        &state.name,
+        &project_path,
+        &answers_map,
+        &prompt,
+    ).ok();
+
     // Update state
     if let Some(ref mut brainstorm) = state.brainstorm {
         brainstorm.completed_at = Some(Utc::now());
@@ -162,7 +173,7 @@ pub async fn complete_brainstorm(
 
     state.task = Some(TaskConfig {
         prompt,
-        design_doc_path: None,
+        design_doc_path,
         cli,
         max_iterations,
         completion_signal: "<done>COMPLETE</done>".to_string(),

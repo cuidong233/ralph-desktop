@@ -1,4 +1,7 @@
 use serde::{Deserialize, Serialize};
+use chrono::Utc;
+use std::fs;
+use std::path::Path;
 
 /// Question template for brainstorm
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -12,6 +15,14 @@ pub struct QuestionTemplate {
     pub options: Vec<QuestionOption>,
     pub allow_other: bool,
     pub required: bool,
+    pub condition: Option<QuestionCondition>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuestionCondition {
+    pub question_id: String,
+    pub values: Vec<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -64,6 +75,7 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             ],
             allow_other: true,
             required: true,
+            condition: None,
         },
         // Phase 2: Requirements
         QuestionTemplate {
@@ -75,6 +87,7 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             options: vec![],
             allow_other: false,
             required: true,
+            condition: None,
         },
         QuestionTemplate {
             id: "tech_stack".to_string(),
@@ -116,6 +129,10 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             ],
             allow_other: true,
             required: true,
+            condition: Some(QuestionCondition {
+                question_id: "task_type".to_string(),
+                values: vec!["greenfield".to_string()],
+            }),
         },
         QuestionTemplate {
             id: "existing_code_info".to_string(),
@@ -126,6 +143,10 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             options: vec![],
             allow_other: false,
             required: false,
+            condition: Some(QuestionCondition {
+                question_id: "task_type".to_string(),
+                values: vec!["feature".to_string(), "refactor".to_string(), "bugfix".to_string()],
+            }),
         },
         QuestionTemplate {
             id: "test_requirement".to_string(),
@@ -152,6 +173,7 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             ],
             allow_other: false,
             required: true,
+            condition: None,
         },
         QuestionTemplate {
             id: "additional_requirements".to_string(),
@@ -162,6 +184,7 @@ pub fn get_question_flow() -> Vec<QuestionTemplate> {
             options: vec![],
             allow_other: false,
             required: false,
+            condition: None,
         },
     ]
 }
@@ -290,4 +313,122 @@ pub fn generate_prompt(answers: &std::collections::HashMap<String, serde_json::V
     );
 
     prompt
+}
+
+/// Generate design document and save to project directory
+pub fn generate_design_doc(
+    project_name: &str,
+    project_path: &Path,
+    answers: &std::collections::HashMap<String, serde_json::Value>,
+    prompt: &str,
+) -> Result<String, String> {
+    let now = Utc::now();
+    let date_str = now.format("%Y-%m-%d").to_string();
+
+    let task_type = answers
+        .get("task_type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("task");
+
+    let description = answers
+        .get("project_description")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    let tech_stack = answers
+        .get("tech_stack")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    let test_req = answers
+        .get("test_requirement")
+        .and_then(|v| v.as_str())
+        .unwrap_or("basic");
+
+    let additional = answers
+        .get("additional_requirements")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    // Build answers table
+    let mut answers_table = String::new();
+    for (key, value) in answers {
+        let value_str = match value {
+            serde_json::Value::String(s) => s.clone(),
+            serde_json::Value::Array(arr) => arr
+                .iter()
+                .filter_map(|v| v.as_str())
+                .collect::<Vec<_>>()
+                .join(", "),
+            _ => value.to_string(),
+        };
+        answers_table.push_str(&format!("| {} | {} |\n", key, value_str));
+    }
+
+    let doc_content = format!(
+        r#"# {} 设计文档
+
+> 生成时间: {}
+> 由 Ralph Desktop Brainstorm 生成
+
+## 概述
+
+{}
+
+## 需求分析
+
+### 用户回答摘要
+
+| 问题 | 回答 |
+|------|------|
+{}
+
+### 功能需求
+
+- 任务类型: {}
+- 技术栈: {}
+- 测试要求: {}
+{}
+
+## 完成标准
+
+任务完成的标准：
+- [ ] 实现所有描述的功能
+- [ ] 代码能够正常运行
+- [ ] 满足测试要求
+- [ ] 输出完成信号 `<done>COMPLETE</done>`
+
+## 生成的 Prompt
+
+```
+{}
+```
+
+---
+
+*此文档由 Ralph Desktop 自动生成，可手动编辑。*
+"#,
+        project_name,
+        now.format("%Y-%m-%d %H:%M:%S UTC"),
+        description,
+        answers_table,
+        task_type,
+        if tech_stack.is_empty() { "未指定" } else { tech_stack },
+        test_req,
+        if additional.is_empty() { String::new() } else { format!("- 其他要求: {}", additional) },
+        prompt
+    );
+
+    // Create docs/plans directory
+    let docs_dir = project_path.join("docs").join("plans");
+    fs::create_dir_all(&docs_dir).map_err(|e| e.to_string())?;
+
+    // Generate filename
+    let filename = format!("{}-{}-design.md", date_str, task_type);
+    let doc_path = docs_dir.join(&filename);
+
+    // Write file
+    fs::write(&doc_path, doc_content).map_err(|e| e.to_string())?;
+
+    Ok(doc_path.to_string_lossy().to_string())
 }
