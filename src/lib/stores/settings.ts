@@ -9,6 +9,7 @@ const defaultConfig: GlobalConfig = {
   iterationTimeoutMs: 0,
   idleTimeoutMs: 0,
   theme: 'system',
+  language: 'system',
   logRetentionDays: 7,
   permissionsConfirmed: false
 };

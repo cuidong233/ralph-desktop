@@ -2,6 +2,8 @@
   import { config, availableClis, updateConfig } from '$lib/stores/settings';
   import * as api from '$lib/services/tauri';
   import type { GlobalConfig, CliType, Theme } from '$lib/types';
+  import { _, locale } from 'svelte-i18n';
+  import { setLocaleFromConfig } from '$lib/i18n';
 
   interface Props {
     onClose: () => void;
@@ -17,6 +19,7 @@
     try {
       await api.saveConfig(localConfig);
       updateConfig(localConfig);
+      setLocaleFromConfig(localConfig.language);
       onClose();
     } catch (error) {
       console.error('Failed to save config:', error);
@@ -26,18 +29,34 @@
   }
 
   async function handleResetPermissions() {
-    if (confirm('确定要重置权限确认吗？下次启动时会再次显示安全提示。')) {
+    if (confirm($_('settings.resetConfirm'))) {
       localConfig.permissionsConfirmed = false;
       localConfig.permissionsConfirmedAt = undefined;
     }
   }
+
+  const languageOptions = $derived([
+    { value: 'system', label: $_('settings.languageSystem') },
+    { value: 'en', label: 'English' },
+    { value: 'zh-CN', label: '简体中文' },
+    { value: 'zh-TW', label: '繁體中文' },
+    { value: 'es', label: 'Español' },
+    { value: 'hi', label: 'हिन्दी' },
+    { value: 'ar', label: 'العربية' },
+    { value: 'pt', label: 'Português' },
+    { value: 'ru', label: 'Русский' },
+    { value: 'ja', label: '日本語' },
+    { value: 'de', label: 'Deutsch' },
+    { value: 'fr', label: 'Français' },
+    { value: 'bn', label: 'বাংলা' }
+  ]);
 </script>
 
 <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
   <div class="bg-vscode-panel border border-vscode rounded-lg shadow-xl max-w-lg w-full m-4 max-h-[90vh] overflow-hidden flex flex-col">
     <!-- Header -->
     <div class="p-4 border-b border-vscode flex items-center justify-between">
-      <h2 class="text-lg font-semibold text-vscode">设置</h2>
+      <h2 class="text-lg font-semibold text-vscode">{$_('settings.title')}</h2>
       <button
         class="text-vscode-dim hover:text-vscode"
         onclick={onClose}
@@ -50,10 +69,10 @@
     <div class="flex-1 overflow-y-auto p-4 space-y-6">
       <!-- CLI Settings -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">CLI 设置</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.cliSection')}</h3>
         <div class="space-y-3">
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">默认 CLI</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.defaultCli')}</label>
             <select
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
               bind:value={localConfig.defaultCli}
@@ -68,10 +87,10 @@
 
       <!-- Loop Settings -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">循环设置</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.loopSection')}</h3>
         <div class="space-y-3">
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">默认最大迭代次数</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.defaultMaxIterations')}</label>
             <input
               type="number"
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
@@ -81,7 +100,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">最大并发项目数</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.maxConcurrent')}</label>
             <input
               type="number"
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
@@ -91,7 +110,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">迭代超时 (分钟，0 = 不限制)</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.iterationTimeout')}</label>
             <input
               type="number"
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
@@ -104,7 +123,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">空闲超时 (分钟，0 = 不限制)</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.idleTimeout')}</label>
             <input
               type="number"
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
@@ -121,17 +140,28 @@
 
       <!-- Appearance -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">外观</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.appearance')}</h3>
         <div class="space-y-3">
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">主题</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.theme')}</label>
             <select
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
               bind:value={localConfig.theme}
             >
-              <option value="system">跟随系统</option>
-              <option value="light">浅色</option>
-              <option value="dark">深色</option>
+              <option value="system">{$_('settings.themeSystem')}</option>
+              <option value="light">{$_('settings.themeLight')}</option>
+              <option value="dark">{$_('settings.themeDark')}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.language')}</label>
+            <select
+              class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
+              bind:value={localConfig.language}
+            >
+              {#each languageOptions as option}
+                <option value={option.value}>{option.label}</option>
+              {/each}
             </select>
           </div>
         </div>
@@ -139,10 +169,10 @@
 
       <!-- Storage -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">存储</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.storage')}</h3>
         <div class="space-y-3">
           <div>
-            <label class="block text-sm text-vscode-muted mb-1">日志保留天数</label>
+            <label class="block text-sm text-vscode-muted mb-1">{$_('settings.logRetention')}</label>
             <input
               type="number"
               class="w-full p-2 border border-vscode rounded-lg bg-vscode-input text-vscode focus-vscode"
@@ -156,19 +186,19 @@
 
       <!-- Security -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">安全</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.security')}</h3>
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <div class="text-sm text-vscode-muted">权限确认状态</div>
+              <div class="text-sm text-vscode-muted">{$_('settings.permissionsStatus')}</div>
               <div class="text-xs text-vscode-muted">
                 {#if localConfig.permissionsConfirmed}
-                  已确认
+                  {$_('settings.permissionsConfirmed')}
                   {#if localConfig.permissionsConfirmedAt}
-                    ({new Date(localConfig.permissionsConfirmedAt).toLocaleDateString('zh-CN')})
+                    ({new Date(localConfig.permissionsConfirmedAt).toLocaleDateString($locale || undefined)})
                   {/if}
                 {:else}
-                  未确认
+                  {$_('settings.permissionsNotConfirmed')}
                 {/if}
               </div>
             </div>
@@ -176,7 +206,7 @@
               class="px-3 py-1 text-sm bg-vscode-input border border-vscode text-vscode-error rounded hover:bg-vscode-hover"
               onclick={handleResetPermissions}
             >
-              重置
+              {$_('settings.reset')}
             </button>
           </div>
         </div>
@@ -184,7 +214,7 @@
 
       <!-- CLI Info -->
       <section>
-        <h3 class="text-sm font-medium text-vscode mb-3">已安装的 CLI</h3>
+        <h3 class="text-sm font-medium text-vscode mb-3">{$_('settings.installedClis')}</h3>
         <div class="space-y-2">
           {#each $availableClis as cli}
             <div class="flex items-center justify-between p-2 bg-vscode-input border border-vscode rounded">
@@ -194,7 +224,7 @@
                 </span>
                 <span class="text-sm text-vscode">{cli.name}</span>
               </div>
-              <span class="text-xs text-vscode-muted">{cli.version || '未安装'}</span>
+              <span class="text-xs text-vscode-muted">{cli.version || $_('cliMissing.notInstalled')}</span>
             </div>
           {/each}
         </div>
@@ -207,14 +237,14 @@
         class="px-4 py-2 text-vscode-dim hover:text-vscode"
         onclick={onClose}
       >
-        取消
+        {$_('settings.cancel')}
       </button>
       <button
         class="px-4 py-2 bg-vscode-accent bg-vscode-accent-hover text-white rounded-lg disabled:opacity-50"
         onclick={handleSave}
         disabled={saving}
       >
-        {saving ? '保存中...' : '保存'}
+        {saving ? $_('settings.saving') : $_('settings.save')}
       </button>
     </div>
   </div>

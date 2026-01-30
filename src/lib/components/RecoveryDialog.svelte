@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as api from '$lib/services/tauri';
   import type { RecoveryInfo } from '$lib/services/tauri';
+  import { _ } from 'svelte-i18n';
 
   interface Props {
     tasks: RecoveryInfo[];
@@ -42,10 +43,10 @@
     <div class="p-4 border-b border-vscode">
       <h2 class="text-lg font-semibold text-vscode flex items-center gap-2">
         <span class="text-vscode-warning">⚠️</span>
-        检测到中断的任务
+        {$_('recovery.title')}
       </h2>
       <p class="text-sm text-vscode-dim mt-1">
-        上次关闭时有 {tasks.length} 个任务正在运行
+        {$_('recovery.subtitle', { values: { count: tasks.length } })}
       </p>
     </div>
 
@@ -60,7 +61,7 @@
                   {task.projectName}
                 </div>
                 <div class="text-sm text-vscode-muted mt-1">
-                  迭代 #{task.iteration} · 状态: {task.status}
+                  {$_('recovery.iterationStatus', { values: { iteration: task.iteration, status: task.status } })}
                 </div>
               </div>
               <div class="flex gap-2">
@@ -68,13 +69,13 @@
                   class="px-3 py-1 text-sm bg-vscode-accent bg-vscode-accent-hover text-white rounded"
                   onclick={() => handleRecover(task.projectId)}
                 >
-                  恢复
+                  {$_('recovery.recover')}
                 </button>
                 <button
                   class="px-3 py-1 text-sm bg-vscode-panel border border-vscode text-vscode-dim rounded hover:bg-vscode-hover"
                   onclick={() => handleCancel(task.projectId)}
                 >
-                  取消
+                  {$_('recovery.cancel')}
                 </button>
               </div>
             </div>
@@ -89,13 +90,13 @@
         class="px-4 py-2 text-sm text-vscode-error hover:opacity-90"
         onclick={handleCancelAll}
       >
-        全部取消
+        {$_('recovery.cancelAll')}
       </button>
       <button
         class="px-4 py-2 text-sm text-vscode-dim hover:text-vscode"
         onclick={onDismiss}
       >
-        稍后处理
+        {$_('recovery.dismiss')}
       </button>
     </div>
   </div>

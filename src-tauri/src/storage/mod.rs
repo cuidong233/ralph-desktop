@@ -57,6 +57,10 @@ pub fn load_config() -> Result<GlobalConfig> {
         config.idle_timeout_ms = 0;
         updated = true;
     }
+    if config.language.trim().is_empty() {
+        config.language = "system".to_string();
+        updated = true;
+    }
 
     if updated {
         save_config(&config)?;

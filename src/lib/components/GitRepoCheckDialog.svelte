@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GitRepoCheckReason } from '$lib/stores/gitRepoCheck';
+  import { _ } from 'svelte-i18n';
 
   interface Props {
     projectName: string;
@@ -20,13 +21,13 @@
       <div class="text-vscode-warning text-xl">⚠️</div>
       <div>
         <h2 class="text-base font-semibold text-vscode">
-          需要 Git 仓库信任
+          {$_('gitRepo.title')}
         </h2>
         <p class="text-sm text-vscode-dim mt-1">
           {#if reason === 'runtime'}
-            Codex 执行时检测到目录未被信任，需要先处理后再继续。
+            {$_('gitRepo.runtimeReason')}
           {:else}
-            Codex 需要项目目录在 Git 仓库内，或显式跳过检查。
+            {$_('gitRepo.preflightReason')}
           {/if}
         </p>
       </div>
@@ -38,7 +39,7 @@
         <div class="text-vscode-muted break-all">{projectPath}</div>
       </div>
       <div class="text-xs text-vscode-muted">
-        选择「初始化 Git」会在项目目录内创建 .git；选择「跳过检查」将对该项目永久生效。
+        {$_('gitRepo.projectNote')}
       </div>
     </div>
 
@@ -48,21 +49,21 @@
         onclick={onCancel}
         disabled={busy}
       >
-        取消
+        {$_('gitRepo.cancel')}
       </button>
       <button
         class="px-3 py-1.5 text-sm bg-vscode-input border border-vscode rounded text-vscode hover:bg-vscode-hover disabled:opacity-50"
         onclick={onSkip}
         disabled={busy}
       >
-        跳过检查
+        {$_('gitRepo.skip')}
       </button>
       <button
         class="px-3 py-1.5 text-sm bg-vscode-accent text-white rounded hover:bg-vscode-accent-hover disabled:opacity-50"
         onclick={onInit}
         disabled={busy}
       >
-        初始化 Git
+        {$_('gitRepo.init')}
       </button>
     </div>
   </div>

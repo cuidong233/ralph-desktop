@@ -12,6 +12,7 @@ export interface GlobalConfig {
   iterationTimeoutMs: number;
   idleTimeoutMs: number;
   theme: Theme;
+  language: string;
   logRetentionDays: number;
   permissionsConfirmed: boolean;
   permissionsConfirmedAt?: string;

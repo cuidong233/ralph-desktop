@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LogEntry } from '$lib/types';
+  import { _, locale } from 'svelte-i18n';
 
   interface Props {
     logs: LogEntry[];
@@ -24,7 +25,8 @@
   }
 
   function formatTime(date: Date): string {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const lang = $locale || undefined;
+    return date.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 </script>
 
@@ -35,7 +37,7 @@
 >
   {#if logs.length === 0}
     <div class="text-vscode-muted text-center py-8">
-      等待日志输出...
+      {$_('log.waiting')}
     </div>
   {:else}
     {#each logs as log, i (i)}
@@ -55,7 +57,7 @@
         container.scrollTop = container.scrollHeight;
       }}
     >
-      ↓ 滚动到底部
+      ↓ {$_('log.scrollBottom')}
     </button>
   {/if}
 </div>

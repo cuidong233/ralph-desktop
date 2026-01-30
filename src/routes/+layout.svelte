@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { projects, currentProjectId, currentProject, updateProjects, updateCurrentProject, updateProjectStatus, selectProject } from '$lib/stores/projects';
   import { config, availableClis, updateConfig, setAvailableClis } from '$lib/stores/settings';
   import { loopState, setStatus, setIteration, addLog, setError } from '$lib/stores/loop';
@@ -9,6 +10,7 @@
   import { notifySuccess, notifyError, notifyWarning } from '$lib/stores/notifications';
   import * as api from '$lib/services/tauri';
   import { CODEX_GIT_REPO_CHECK_REQUIRED, startLoopWithGuard } from '$lib/services/loopStart';
+  import { setLocaleFromConfig } from '$lib/i18n';
   import type { LoopEvent } from '$lib/types';
   import type { RecoveryInfo } from '$lib/services/tauri';
   import RecoveryDialog from '$lib/components/RecoveryDialog.svelte';
@@ -27,6 +29,7 @@
       // Load config
       const loadedConfig = await api.getConfig();
       updateConfig(loadedConfig);
+      setLocaleFromConfig(loadedConfig.language);
 
       // Check if permissions need confirmation
       if (!loadedConfig.permissionsConfirmed) {
@@ -87,16 +90,19 @@
         return;
       }
       setError(event.error);
-      notifyError('执行错误', event.error);
+      notifyError($_('notifications.executionErrorTitle'), event.error);
       updateProjectStatus(event.projectId, 'failed');
     }
 
     if (event.type === 'completed') {
-      notifySuccess('任务完成', `项目已成功完成所有迭代`);
+      notifySuccess($_('notifications.taskCompletedTitle'), $_('notifications.taskCompletedMessage'));
     }
 
     if (event.type === 'maxIterationsReached') {
-      notifyWarning('达到最大迭代次数', `任务已在第 ${event.iteration} 次迭代后停止`);
+      notifyWarning(
+        $_('notifications.maxIterationsTitle'),
+        $_('notifications.maxIterationsMessage', { values: { iteration: event.iteration } })
+      );
     }
 
     if (event.iteration !== undefined) {
@@ -152,7 +158,7 @@
       await startLoopFromDialog(projectId);
     } catch (error) {
       console.error('Failed to init git repo:', error);
-      notifyError('初始化 Git 失败', String(error));
+      notifyError($_('notifications.gitInitFailed'), String(error));
     } finally {
       gitRepoBusy = false;
     }
@@ -169,7 +175,7 @@
       await startLoopFromDialog(projectId);
     } catch (error) {
       console.error('Failed to skip git repo check:', error);
-      notifyError('跳过检查失败', String(error));
+      notifyError($_('notifications.skipGitFailed'), String(error));
     } finally {
       gitRepoBusy = false;
     }
@@ -184,20 +190,20 @@
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <div class="bg-vscode-panel border border-vscode rounded-lg shadow-xl max-w-lg p-6 m-4">
       <h2 class="text-xl font-bold text-vscode-warning mb-4">
-        ⚠️ 重要安全提示
+        ⚠️ {$_('permissions.title')}
       </h2>
       <div class="text-vscode space-y-3 mb-6">
-        <p>Ralph Desktop 需要以自动执行模式运行 AI 编程助手。这意味着：</p>
+        <p>{$_('permissions.intro')}</p>
         <ul class="list-disc list-inside space-y-1 ml-2">
-          <li>AI 可以自动读取、创建、修改、删除项目目录中的文件</li>
-          <li>AI 可以自动执行命令（如 npm install、git commit 等）</li>
-          <li>AI 的操作不会逐一询问确认</li>
+          <li>{$_('permissions.bullet1')}</li>
+          <li>{$_('permissions.bullet2')}</li>
+          <li>{$_('permissions.bullet3')}</li>
         </ul>
-        <p class="font-medium">建议：</p>
+        <p class="font-medium">{$_('permissions.recommendationTitle')}</p>
         <ul class="list-disc list-inside space-y-1 ml-2">
-          <li>仅在你信任的项目目录中使用</li>
-          <li>确保项目使用 Git 版本控制，以便回滚</li>
-          <li>不要在包含敏感数据的目录中使用</li>
+          <li>{$_('permissions.recommendation1')}</li>
+          <li>{$_('permissions.recommendation2')}</li>
+          <li>{$_('permissions.recommendation3')}</li>
         </ul>
       </div>
       <div class="flex justify-end gap-3">
@@ -205,13 +211,13 @@
           class="px-4 py-2 rounded-lg bg-vscode-panel border border-vscode text-vscode-dim hover:bg-vscode-hover"
           onclick={() => window.close()}
         >
-          取消
+          {$_('permissions.cancel')}
         </button>
         <button
           class="px-4 py-2 rounded-lg bg-vscode-accent bg-vscode-accent-hover text-white"
           onclick={handleConfirmPermissions}
         >
-          确认并继续
+          {$_('permissions.confirm')}
         </button>
       </div>
     </div>
@@ -231,7 +237,7 @@
   {@const pending = $gitRepoCheckRequest}
   {@const meta = $projects.find(p => p.id === pending.projectId)}
   <GitRepoCheckDialog
-    projectName={meta?.name || $currentProject?.name || 'Unknown Project'}
+    projectName={meta?.name || $currentProject?.name || $_('app.unknownProject')}
     projectPath={meta?.path || $currentProject?.path || ''}
     reason={pending.reason}
     busy={gitRepoBusy}
@@ -247,7 +253,7 @@
   <div class="flex items-center justify-center h-screen bg-vscode-editor">
     <div class="text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-vscode-accent mx-auto mb-4"></div>
-      <p class="text-vscode-muted">加载中...</p>
+      <p class="text-vscode-muted">{$_('common.loading')}</p>
     </div>
   </div>
 {/if}

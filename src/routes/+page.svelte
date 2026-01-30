@@ -1,5 +1,6 @@
 <script lang="ts">
   import { projects, currentProjectId, currentProject, selectProject, addProject, removeProject, updateCurrentProject } from '$lib/stores/projects';
+  import { _ } from 'svelte-i18n';
   import { loopState, resetLoop, clearLogs } from '$lib/stores/loop';
   import { config, availableClis } from '$lib/stores/settings';
   import * as api from '$lib/services/tauri';
@@ -19,12 +20,12 @@
   let creatingProject = $state(false);
 
   // Keyboard shortcuts
-  const shortcuts = [
-    { key: 'n', ctrl: true, action: handleCreateProject, description: '新建项目' },
-    { key: ',', ctrl: true, action: () => showSettings = true, description: '打开设置' },
-    { key: '?', ctrl: true, action: () => showShortcuts = true, description: '显示快捷键' },
-    { key: 'Escape', action: handleEscape, description: '关闭对话框' },
-  ];
+  const shortcuts = $derived([
+    { key: 'n', ctrl: true, action: handleCreateProject, description: $_('shortcuts.newProject') },
+    { key: ',', ctrl: true, action: () => showSettings = true, description: $_('shortcuts.openSettings') },
+    { key: '?', ctrl: true, action: () => showShortcuts = true, description: $_('shortcuts.showHelp') },
+    { key: 'Escape', action: handleEscape, description: $_('shortcuts.closeDialog') },
+  ]);
 
   function handleEscape() {
     if (showSettings) showSettings = false;
@@ -66,12 +67,12 @@
       const selected = await open({
         directory: true,
         multiple: false,
-        title: '选择项目目录'
+        title: $_('dialogs.selectProjectDir')
       });
 
       if (selected) {
         const path = selected as string;
-        const name = path.split('/').pop() || 'New Project';
+        const name = path.split('/').pop() || $_('app.newProject');
         const project = await api.createProject(path, name);
         addProject({
           id: project.id,
@@ -91,7 +92,7 @@
   }
 
   async function handleDeleteProject(id: string) {
-    if (confirm('确定要删除这个项目吗？')) {
+    if (confirm($_('dialogs.deleteProjectConfirm'))) {
       try {
         await api.deleteProject(id);
         removeProject(id);
@@ -117,12 +118,12 @@
     <!-- Header -->
     <div class="px-4 py-3 flex items-center justify-between">
       <div>
-        <h1 class="text-sm font-semibold text-vscode uppercase tracking-wide">Ralph Desktop</h1>
+        <h1 class="text-sm font-semibold text-vscode uppercase tracking-wide">{$_('app.name')}</h1>
       </div>
       <button
         class="p-1.5 text-vscode-dim hover:text-vscode hover:bg-vscode-hover rounded"
         onclick={() => showSettings = true}
-        title="Settings"
+        title={$_('app.settings')}
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -139,10 +140,10 @@
         disabled={creatingProject || availableCliCount === 0}
       >
         <span>+</span>
-        <span>New Project</span>
+        <span>{$_('app.newProject')}</span>
       </button>
       {#if availableCliCount === 0}
-        <p class="text-xs text-[#f14c4c] mt-2 text-center">No CLI detected</p>
+        <p class="text-xs text-[#f14c4c] mt-2 text-center">{$_('app.noCliDetected')}</p>
       {/if}
     </div>
 
@@ -160,8 +161,8 @@
     <QueueStatus />
     <div class="px-3 py-2 border-t border-vscode text-xs text-vscode-muted">
       <div class="flex justify-between">
-        <span>{$availableClis.find(c => c.available)?.name || 'No CLI'}</span>
-        <span>{$projects.length} projects</span>
+        <span>{$availableClis.find(c => c.available)?.name || $_('app.noCli')}</span>
+        <span>{$_('app.projectsCount', { values: { count: $projects.length } })}</span>
       </div>
     </div>
   </div>
@@ -189,8 +190,8 @@
       <div class="flex-1 flex items-center justify-center">
         <div class="text-center text-vscode-dim">
           <div class="text-5xl mb-4 opacity-30">📁</div>
-          <h2 class="text-base font-medium mb-1 text-vscode">Select or create a project</h2>
-          <p class="text-sm text-vscode-muted">Click "New Project" to get started</p>
+          <h2 class="text-base font-medium mb-1 text-vscode">{$_('app.selectOrCreate')}</h2>
+          <p class="text-sm text-vscode-muted">{$_('app.getStarted')}</p>
         </div>
       </div>
     {/if}

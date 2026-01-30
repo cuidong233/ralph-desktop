@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ProjectState } from '$lib/types';
+  import { _ } from 'svelte-i18n';
 
   interface Props {
     project: ProjectState;
@@ -37,7 +38,7 @@
   <div class="flex items-center justify-between p-3 border-b border-vscode">
     <h3 class="font-medium text-vscode flex items-center gap-2">
       <span>📝</span>
-      <span>Prompt 预览</span>
+      <span>{$_('prompt.title')}</span>
     </h3>
     <div class="flex gap-2">
       {#if !isEditing}
@@ -45,26 +46,26 @@
           class="px-3 py-1 text-sm bg-vscode-input hover:bg-vscode-hover rounded text-vscode-dim border border-vscode"
           onclick={copyToClipboard}
         >
-          复制
+          {$_('prompt.copy')}
         </button>
         <button
           class="px-3 py-1 text-sm bg-vscode-accent bg-vscode-accent-hover rounded text-white"
           onclick={handleEdit}
         >
-          编辑
+          {$_('prompt.edit')}
         </button>
       {:else}
         <button
           class="px-3 py-1 text-sm bg-vscode-input hover:bg-vscode-hover rounded text-vscode-dim border border-vscode"
           onclick={handleCancel}
         >
-          取消
+          {$_('prompt.cancel')}
         </button>
         <button
           class="px-3 py-1 text-sm bg-vscode-accent bg-vscode-accent-hover rounded text-white"
           onclick={handleSave}
         >
-          保存
+          {$_('prompt.save')}
         </button>
       {/if}
     </div>
@@ -76,11 +77,11 @@
       <textarea
         class="w-full h-64 p-3 font-mono text-sm bg-vscode-editor border border-vscode rounded-lg resize-none focus-vscode text-vscode"
         bind:value={editedPrompt}
-        placeholder="输入 prompt..."
+        placeholder={$_('prompt.placeholder')}
       ></textarea>
     {:else}
       <div class="max-h-64 overflow-y-auto">
-        <pre class="whitespace-pre-wrap font-mono text-sm text-vscode bg-vscode-editor p-3 rounded-lg border border-vscode">{editedPrompt || '(无 prompt)'}</pre>
+        <pre class="whitespace-pre-wrap font-mono text-sm text-vscode bg-vscode-editor p-3 rounded-lg border border-vscode">{editedPrompt || $_('prompt.empty')}</pre>
       </div>
     {/if}
   </div>
@@ -88,8 +89,8 @@
   <!-- Stats -->
   <div class="px-3 pb-3">
     <div class="text-xs text-vscode-muted flex gap-4">
-      <span>字符数: {editedPrompt.length}</span>
-      <span>行数: {editedPrompt.split('\n').length}</span>
+      <span>{$_('prompt.chars', { values: { count: editedPrompt.length } })}</span>
+      <span>{$_('prompt.lines', { values: { count: editedPrompt.split('\n').length } })}</span>
     </div>
   </div>
 </div>

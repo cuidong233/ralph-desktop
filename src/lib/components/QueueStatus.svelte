@@ -1,20 +1,20 @@
 <script lang="ts">
   import { queueStatus, projectQueue, runningProjects } from '$lib/stores/queue';
+  import { _ } from 'svelte-i18n';
 
   const statusText = $derived(() => {
     const status = $queueStatus;
     if (status.runningCount === 0 && status.queueLength === 0) {
-      return '空闲';
+      return $_('queue.idle');
     }
-    let text = '';
+    const parts: string[] = [];
     if (status.runningCount > 0) {
-      text += `${status.runningCount} 个运行中`;
+      parts.push($_('queue.runningCount', { values: { count: status.runningCount } }));
     }
     if (status.queueLength > 0) {
-      if (text) text += ', ';
-      text += `${status.queueLength} 个排队中`;
+      parts.push($_('queue.queueCount', { values: { count: status.queueLength } }));
     }
-    return text;
+    return parts.join(', ');
   });
 
   const statusColor = $derived(() => {
@@ -32,7 +32,7 @@
   </div>
   {#if $queueStatus.availableSlots > 0}
     <span class="text-xs text-vscode-muted ml-auto">
-      {$queueStatus.availableSlots} 槽位可用
+      {$_('queue.availableSlots', { values: { count: $queueStatus.availableSlots } })}
     </span>
   {/if}
 </div>

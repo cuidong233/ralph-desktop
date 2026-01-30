@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ProjectMeta, ProjectStatus } from '$lib/types';
+  import { _ } from 'svelte-i18n';
 
   interface Props {
     projects: ProjectMeta[];
@@ -37,7 +38,7 @@
 <div class="">
   {#if projects.length === 0}
     <div class="px-4 py-6 text-center text-vscode-muted text-sm">
-      No projects
+      {$_('app.noProjects')}
     </div>
   {:else}
     {#each projects as project (project.id)}
@@ -65,7 +66,7 @@
         <button
           class="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#f14c4c20] rounded text-[#f14c4c]"
           onclick={(e) => { e.stopPropagation(); onDelete(project.id); }}
-          title="Delete"
+          title={$_('common.delete')}
         >
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>

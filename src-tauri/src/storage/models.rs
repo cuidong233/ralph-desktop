@@ -13,6 +13,8 @@ pub struct GlobalConfig {
     pub iteration_timeout_ms: u64,
     pub idle_timeout_ms: u64,
     pub theme: Theme,
+    #[serde(default = "default_language")]
+    pub language: String,
     pub log_retention_days: u32,
     pub permissions_confirmed: bool,
     pub permissions_confirmed_at: Option<DateTime<Utc>>,
@@ -28,11 +30,16 @@ impl Default for GlobalConfig {
             iteration_timeout_ms: 0, // 0 = no timeout
             idle_timeout_ms: 0,      // 0 = no timeout
             theme: Theme::System,
+            language: default_language(),
             log_retention_days: 7,
             permissions_confirmed: false,
             permissions_confirmed_at: None,
         }
     }
+}
+
+fn default_language() -> String {
+    "system".to_string()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
