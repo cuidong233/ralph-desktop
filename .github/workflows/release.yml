@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.1.5)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -59,8 +65,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Ralph Desktop ${{ github.ref_name }}'
+          tagName: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
+          releaseName: 'Ralph Desktop ${{ github.event.inputs.version && format(''v{0}'', github.event.inputs.version) || github.ref_name }}'
           releaseBody: |
             ## Download (EN)
             Pick the file for your OS:
