@@ -63,6 +63,7 @@ impl CliAdapter for ClaudeCodeAdapter {
         ];
         #[cfg(target_os = "windows")]
         {
+            let _ = prompt;
             args.push("--input-format".to_string());
             args.push("text".to_string());
         }
@@ -104,6 +105,7 @@ impl CliAdapter for ClaudeCodeAdapter {
         ];
         #[cfg(target_os = "windows")]
         {
+            let _ = prompt;
             args.push("--input-format".to_string());
             args.push("text".to_string());
         }
