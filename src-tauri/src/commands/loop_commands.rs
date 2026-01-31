@@ -98,6 +98,13 @@ pub async fn start_loop(
                         exec.current_iteration = iteration;
                     }
                 }
+                Ok(LoopState::MaxIterationsReached { iteration }) => {
+                    project_state.status = ProjectStatus::Partial;
+                    if let Some(ref mut exec) = project_state.execution {
+                        exec.completed_at = Some(Utc::now());
+                        exec.current_iteration = iteration;
+                    }
+                }
                 Ok(LoopState::Failed { iteration }) => {
                     project_state.status = ProjectStatus::Failed;
                     if let Some(ref mut exec) = project_state.execution {

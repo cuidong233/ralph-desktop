@@ -1,7 +1,17 @@
 // CLI Types
 export type CliType = 'claude' | 'codex' | 'opencode';
 export type Theme = 'light' | 'dark' | 'system';
-export type ProjectStatus = 'brainstorming' | 'ready' | 'queued' | 'running' | 'pausing' | 'paused' | 'done' | 'failed' | 'cancelled';
+export type ProjectStatus =
+  | 'brainstorming'
+  | 'ready'
+  | 'queued'
+  | 'running'
+  | 'pausing'
+  | 'paused'
+  | 'done'
+  | 'partial'
+  | 'failed'
+  | 'cancelled';
 
 // Global Config
 export interface GlobalConfig {

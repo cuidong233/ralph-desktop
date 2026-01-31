@@ -20,6 +20,7 @@
     pausing: '#cca700',        // yellow
     paused: '#cca700',         // yellow
     done: '#4ec9b0',           // green
+    partial: '#3794ff',        // blue
     failed: '#f14c4c',         // red
     cancelled: '#6e6e6e'       // gray
   };

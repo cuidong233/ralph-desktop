@@ -74,7 +74,8 @@
       "done": "已完成",
       "failed": "失敗",
       "cancelled": "已取消",
-      "brainstorming": "腦力激盪"
+      "brainstorming": "腦力激盪",
+      "partial": "階段完成"
     },
     "cli": "CLI",
     "iteration": "迭代",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "已完成",
       "failedTitle": "出錯",
-      "meta": "用時 {duration} · 迭代 {current}/{max}"
+      "meta": "用時 {duration} · 迭代 {current}/{max}",
+      "partialTitle": "階段完成",
+      "partialMessage": "已達到最大迭代次數。結果可用，但仍可進一步優化。"
     },
     "actions": {
       "viewLogs": "查看日誌",
       "openProject": "打開專案",
       "copySummary": "複製總結",
       "copyError": "複製錯誤",
-      "retry": "重新執行"
+      "retry": "重新執行",
+      "increaseIterations": "增加迭代次數並重試",
+      "useCurrent": "使用目前結果",
+      "increaseIterationsPrompt": "輸入新的最大迭代次數（目前 {current}，建議 {suggested}）"
     },
     "statusCard": {
       "completedTitle": "任務已完成",
-      "failedTitle": "任務出錯"
+      "failedTitle": "任務出錯",
+      "partialTitle": "階段完成（可優化）",
+      "partialMessage": "目前結果可用，但仍有改進空間。你可以增加迭代次數以優化，或直接使用。"
     },
     "summaryFallback": "暫無總結",
     "errorFallback": "未知錯誤",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "執行錯誤",
     "taskCompletedTitle": "任務完成",
     "taskCompletedMessage": "專案已完成所有迭代",
-    "maxIterationsTitle": "達到最大迭代次數",
-    "maxIterationsMessage": "任務已在第 {iteration} 次迭代後停止",
+    "maxIterationsTitle": "階段完成",
+    "maxIterationsMessage": "已達到最大迭代次數（{iteration}）。你可以增加迭代次數以進一步優化，或使用目前結果。",
     "gitInitFailed": "初始化 Git 失敗",
     "skipGitFailed": "跳過檢查失敗"
   },

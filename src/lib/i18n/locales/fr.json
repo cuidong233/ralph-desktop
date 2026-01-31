@@ -74,7 +74,8 @@
       "done": "Terminé",
       "failed": "Échec",
       "cancelled": "Annulé",
-      "brainstorming": "Brainstorming"
+      "brainstorming": "Brainstorming",
+      "partial": "Phase terminée"
     },
     "cli": "CLI",
     "iteration": "Itération",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Phase terminée",
+      "partialMessage": "Nombre maximal d’itérations atteint. Le résultat est utilisable, mais peut être encore affiné."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Augmenter les itérations et réessayer",
+      "useCurrent": "Utiliser le résultat actuel",
+      "increaseIterationsPrompt": "Entrez un nouveau maximum d’itérations (actuel {current}, suggéré {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Phase terminée (affinable)",
+      "partialMessage": "Le résultat actuel est utilisable, mais il y a une marge d’amélioration. Vous pouvez augmenter les itérations pour l’affiner, ou l’utiliser tel quel."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Erreur d'exécution",
     "taskCompletedTitle": "Tâche terminée",
     "taskCompletedMessage": "Le projet a terminé toutes les itérations",
-    "maxIterationsTitle": "Nombre max d'itérations atteint",
-    "maxIterationsMessage": "La tâche s'est arrêtée à l'itération {iteration}",
+    "maxIterationsTitle": "Phase terminée",
+    "maxIterationsMessage": "Nombre maximal d’itérations atteint ({iteration}). Vous pouvez augmenter les itérations pour affiner, ou utiliser le résultat actuel.",
     "gitInitFailed": "Échec de l'initialisation Git",
     "skipGitFailed": "Échec du contournement du contrôle"
   },

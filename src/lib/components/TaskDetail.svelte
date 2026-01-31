@@ -3,6 +3,7 @@
   import type { LoopStoreState } from '$lib/stores/loop';
   import * as api from '$lib/services/tauri';
   import { startLoopWithGuard } from '$lib/services/loopStart';
+  import { updateCurrentProject } from '$lib/stores/projects';
   import { _ } from 'svelte-i18n';
   import LogViewer from './LogViewer.svelte';
   import PromptEditor from './PromptEditor.svelte';
@@ -29,6 +30,7 @@
     pausing: { icon: '🟡', color: 'text-vscode-warning', label: $_('task.status.pausing') },
     paused: { icon: '🟡', color: 'text-vscode-warning', label: $_('task.status.paused') },
     done: { icon: '✅', color: 'text-vscode-success', label: $_('task.status.done') },
+    partial: { icon: '🔵', color: 'text-vscode-info', label: $_('task.status.partial') },
     failed: { icon: '❌', color: 'text-vscode-error', label: $_('task.status.failed') },
     cancelled: { icon: '🚫', color: 'text-vscode-muted', label: $_('task.status.cancelled') },
     brainstorming: { icon: '💭', color: 'text-vscode-accent', label: $_('task.status.brainstorming') }
@@ -39,16 +41,18 @@
   const isPaused = $derived(project.status === 'paused');
   const isPausing = $derived(project.status === 'pausing');
   const isDone = $derived(project.status === 'done');
+  const isPartial = $derived(project.status === 'partial');
   const isFailed = $derived(project.status === 'failed');
-  const showStatusBanner = $derived(isDone || isFailed);
-  const showStatusCard = $derived(isDone || isFailed);
-  const canStart = $derived(['ready', 'failed', 'cancelled'].includes(project.status));
+  const showStatusBanner = $derived(isDone || isFailed || isPartial);
+  const showStatusCard = $derived(isDone || isFailed || isPartial);
+  const canStart = $derived(['ready', 'failed', 'cancelled', 'partial'].includes(project.status));
   const summaryText = $derived(loopState.summary || $_('task.summaryFallback'));
   const elapsedText = $derived(formatDuration(loopState.elapsedMs));
   const maxIterations = $derived(project.task?.maxIterations || loopState.maxIterations || 0);
 
   const badgeConfig = $derived({
     done: 'bg-vscode-success text-white border-vscode-success shadow-md shadow-black/20 animate-pulse',
+    partial: 'bg-vscode-info text-white border-vscode-info shadow-md shadow-black/20',
     failed: 'bg-vscode-error text-white border-vscode-error shadow-md shadow-black/20 animate-pulse',
     running: 'bg-vscode-panel text-vscode-success border-vscode-success',
     pausing: 'bg-vscode-panel text-vscode-warning border-vscode-warning',
@@ -58,6 +62,10 @@
     cancelled: 'bg-vscode-panel text-vscode-muted border-vscode',
     brainstorming: 'bg-vscode-panel text-vscode-accent border-vscode'
   });
+
+  const bannerClass = $derived(
+    isDone ? 'bg-vscode-success' : isPartial ? 'bg-vscode-info' : 'bg-vscode-error'
+  );
 
   async function handleStart() {
     starting = true;
@@ -128,28 +136,52 @@
     const message = loopState.lastError || $_('task.errorFallback');
     await navigator.clipboard.writeText(message);
   }
+
+  async function handleIncreaseIterations() {
+    const current = project.task?.maxIterations || loopState.maxIterations || 0;
+    const suggested = Math.max(current + 5, 1);
+    const input = prompt(
+      $_('task.actions.increaseIterationsPrompt', {
+        values: { current, suggested }
+      }),
+      String(suggested)
+    );
+    if (!input) return;
+    const next = Number.parseInt(input, 10);
+    if (!Number.isFinite(next) || next < 1) return;
+    try {
+      const updated = await api.updateTaskMaxIterations(project.id, next);
+      updateCurrentProject(updated);
+      await handleStart();
+    } catch (error) {
+      console.error('Failed to update max iterations:', error);
+    }
+  }
 </script>
 
 <div class="flex-1 flex flex-col overflow-hidden">
   {#if showStatusBanner}
-    <div
-      class="px-4 py-3 border-b border-vscode {isDone ? 'bg-vscode-success' : 'bg-vscode-error'} text-white"
-      data-testid="task-status-banner"
-    >
+    <div class="px-4 py-3 border-b border-vscode {bannerClass} text-white" data-testid="task-status-banner">
       <div class="flex items-start justify-between gap-4">
         <div class="flex items-start gap-3 min-w-0">
           <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
-            {#if isDone}✓{:else}✕{/if}
+            {#if isDone}✓{:else if isPartial}✓{:else}✕{/if}
           </div>
           <div class="min-w-0">
             <div class="text-sm font-semibold">
-              {isDone ? $_('task.banner.completedTitle') : $_('task.banner.failedTitle')}
+              {isDone
+                ? $_('task.banner.completedTitle')
+                : isPartial
+                  ? $_('task.banner.partialTitle')
+                  : $_('task.banner.failedTitle')}
             </div>
             <div class="text-xs opacity-90">
               {$_('task.banner.meta', { values: { duration: elapsedText, current: loopState.currentIteration, max: maxIterations } })}
             </div>
             {#if isDone}
               <div class="text-xs opacity-90 mt-1 truncate">{summaryText}</div>
+            {:else if isPartial}
+              <div class="text-xs opacity-90 mt-1">{$_('task.banner.partialMessage')}</div>
             {/if}
           </div>
         </div>
@@ -172,6 +204,19 @@
               onclick={handleCopySummary}
             >
               {$_('task.actions.copySummary')}
+            </button>
+          {:else if isPartial}
+            <button
+              class="px-3 py-1.5 text-xs rounded bg-white/15 hover:bg-white/25 transition"
+              onclick={handleIncreaseIterations}
+            >
+              {$_('task.actions.increaseIterations')}
+            </button>
+            <button
+              class="px-3 py-1.5 text-xs rounded bg-white/15 hover:bg-white/25 transition"
+              onclick={handleOpenProject}
+            >
+              {$_('task.actions.useCurrent')}
             </button>
           {:else}
             <button
@@ -260,9 +305,13 @@
           <div class="bg-vscode-panel border border-vscode rounded-lg p-4 shadow-md">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2">
-                <span class="text-lg">{isDone ? '✅' : '❌'}</span>
+                <span class="text-lg">{isDone ? '✅' : isPartial ? '🔵' : '❌'}</span>
                 <div class="text-sm font-semibold text-vscode">
-                  {isDone ? $_('task.statusCard.completedTitle') : $_('task.statusCard.failedTitle')}
+                  {isDone
+                    ? $_('task.statusCard.completedTitle')
+                    : isPartial
+                      ? $_('task.statusCard.partialTitle')
+                      : $_('task.statusCard.failedTitle')}
                 </div>
               </div>
               <div class="text-xs text-vscode-muted">
@@ -271,6 +320,8 @@
             </div>
             {#if isDone}
               <div class="text-sm text-vscode mt-3">{summaryText}</div>
+            {:else if isPartial}
+              <div class="text-sm text-vscode mt-3">{$_('task.statusCard.partialMessage')}</div>
             {:else}
               <div class="text-sm text-vscode-error mt-3">
                 {loopState.lastError || $_('task.errorFallback')}

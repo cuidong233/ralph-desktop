@@ -78,7 +78,7 @@
       paused: 'paused',
       resumed: 'running',
       completed: 'done',
-      maxIterationsReached: 'failed',
+      maxIterationsReached: 'partial',
       error: 'failed',
       stopped: 'cancelled'
     };
@@ -121,9 +121,11 @@
     }
 
     if (event.type === 'maxIterationsReached') {
-      const message = $_('notifications.maxIterationsMessage', { values: { iteration: event.iteration } });
-      setError(projectId, message);
       markEnded(projectId, new Date());
+      const summary = buildSummary(projectId);
+      if (summary) {
+        setSummary(projectId, summary);
+      }
       notifyWarning(
         $_('notifications.maxIterationsTitle'),
         $_('notifications.maxIterationsMessage', { values: { iteration: event.iteration } })

@@ -74,7 +74,8 @@
       "done": "完了",
       "failed": "失敗",
       "cancelled": "キャンセル済み",
-      "brainstorming": "ブレインストーム"
+      "brainstorming": "ブレインストーム",
+      "partial": "フェーズ完了"
     },
     "cli": "CLI",
     "iteration": "イテレーション",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "フェーズ完了",
+      "partialMessage": "最大反復回数に到達しました。結果は使用できますが、さらに改善できます。"
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "反復回数を増やして再試行",
+      "useCurrent": "現在の結果を使用",
+      "increaseIterationsPrompt": "新しい最大反復回数を入力してください（現在 {current}、推奨 {suggested}）"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "フェーズ完了（改善可能）",
+      "partialMessage": "現在の結果は使用できますが、改善の余地があります。反復回数を増やして洗練するか、このまま使用できます。"
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "実行エラー",
     "taskCompletedTitle": "タスク完了",
     "taskCompletedMessage": "全てのイテレーションが完了しました",
-    "maxIterationsTitle": "最大イテレーション到達",
-    "maxIterationsMessage": "イテレーション {iteration} で停止しました",
+    "maxIterationsTitle": "フェーズ完了",
+    "maxIterationsMessage": "最大反復回数（{iteration}）に達しました。さらに精緻化するために反復回数を増やすか、現在の結果を使用できます。",
     "gitInitFailed": "Git 初期化に失敗",
     "skipGitFailed": "チェックのスキップに失敗"
   },

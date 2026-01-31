@@ -74,7 +74,8 @@
       "done": "पूर्ण",
       "failed": "विफल",
       "cancelled": "रद्द",
-      "brainstorming": "ब्रेनस्टॉर्मिंग"
+      "brainstorming": "ब्रेनस्टॉर्मिंग",
+      "partial": "चरण पूर्ण"
     },
     "cli": "CLI",
     "iteration": "इटरेशन",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "चरण पूर्ण",
+      "partialMessage": "अधिकतम पुनरावृत्तियाँ पूरी हो गईं। परिणाम उपयोगी है, लेकिन इसे और बेहतर किया जा सकता है।"
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "पुनरावृत्तियाँ बढ़ाएँ और फिर से प्रयास करें",
+      "useCurrent": "वर्तमान परिणाम का उपयोग करें",
+      "increaseIterationsPrompt": "नई अधिकतम पुनरावृत्तियाँ दर्ज करें (वर्तमान {current}, सुझाई गई {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "चरण पूर्ण (परिष्करण योग्य)",
+      "partialMessage": "वर्तमान परिणाम उपयोगी है, लेकिन सुधार की गुंजाइश है। आप परिष्करण के लिए पुनरावृत्तियाँ बढ़ा सकते हैं, या इसे जैसे है वैसे उपयोग कर सकते हैं।"
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "एक्ज़िक्यूशन त्रुटि",
     "taskCompletedTitle": "कार्य पूरा",
     "taskCompletedMessage": "प्रोजेक्ट ने सभी इटरेशन पूरे किए",
-    "maxIterationsTitle": "अधिकतम इटरेशन पहुँचा",
-    "maxIterationsMessage": "कार्य इटरेशन {iteration} पर रुका",
+    "maxIterationsTitle": "चरण पूर्ण",
+    "maxIterationsMessage": "अधिकतम पुनरावृत्तियाँ ({iteration}) पहुँच गईं। आप और परिष्कृत करने के लिए पुनरावृत्तियाँ बढ़ा सकते हैं, या वर्तमान परिणाम का उपयोग कर सकते हैं।",
     "gitInitFailed": "Git प्रारंभ विफल",
     "skipGitFailed": "Git जाँच छोड़ना विफल"
   },

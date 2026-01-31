@@ -74,7 +74,8 @@
       "done": "Completed",
       "failed": "Failed",
       "cancelled": "Cancelled",
-      "brainstorming": "Brainstorming"
+      "brainstorming": "Brainstorming",
+      "partial": "Phase complete"
     },
     "cli": "CLI",
     "iteration": "Iteration",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Phase complete",
+      "partialMessage": "Reached the max iterations. The result is usable but can be refined further."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Increase iterations and retry",
+      "useCurrent": "Use current result",
+      "increaseIterationsPrompt": "Enter a new max iterations (current {current}, suggested {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Phase complete (refinable)",
+      "partialMessage": "The current result is usable, but there’s room to improve. You can increase iterations to refine, or use it as is."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Execution error",
     "taskCompletedTitle": "Task completed",
     "taskCompletedMessage": "Project completed all iterations",
-    "maxIterationsTitle": "Max iterations reached",
-    "maxIterationsMessage": "Task stopped after iteration {iteration}",
+    "maxIterationsTitle": "Phase complete",
+    "maxIterationsMessage": "Reached the max iterations ({iteration}). You can increase iterations to refine, or use the current result.",
     "gitInitFailed": "Failed to initialize Git",
     "skipGitFailed": "Failed to skip Git check"
   },

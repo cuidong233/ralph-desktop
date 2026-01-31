@@ -204,6 +204,15 @@ const e2eState = (() => {
       project.state.updatedAt = now();
       return project.state;
     },
+    updateTaskMaxIterations(projectId: string, maxIterations: number) {
+      const project = ensureProject(projectId);
+      if (!project.state.task) {
+        throw new Error('No task configured for this project');
+      }
+      project.state.task.maxIterations = maxIterations;
+      project.state.updatedAt = now();
+      return project.state;
+    },
     deleteProject(id: string) {
       projects.delete(id);
     },
@@ -315,6 +324,14 @@ export async function setProjectSkipGitRepoCheck(
 ): Promise<ProjectState> {
   if (isE2E) return e2eState.setProjectSkipGitRepoCheck(projectId, skip);
   return invoke('set_project_skip_git_repo_check', { projectId, skip });
+}
+
+export async function updateTaskMaxIterations(
+  projectId: string,
+  maxIterations: number
+): Promise<ProjectState> {
+  if (isE2E) return e2eState.updateTaskMaxIterations(projectId, maxIterations);
+  return invoke('update_task_max_iterations', { projectId, maxIterations });
 }
 
 export async function initProjectGitRepo(projectId: string): Promise<void> {

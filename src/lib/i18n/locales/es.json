@@ -74,7 +74,8 @@
       "done": "Completado",
       "failed": "Fallido",
       "cancelled": "Cancelado",
-      "brainstorming": "Brainstorming"
+      "brainstorming": "Brainstorming",
+      "partial": "Fase completada"
     },
     "cli": "CLI",
     "iteration": "Iteración",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Fase completada",
+      "partialMessage": "Se alcanzó el máximo de iteraciones. El resultado es utilizable, pero puede refinarse más."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Aumentar iteraciones y reintentar",
+      "useCurrent": "Usar el resultado actual",
+      "increaseIterationsPrompt": "Introduce un nuevo máximo de iteraciones (actual {current}, sugerido {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Fase completada (refinable)",
+      "partialMessage": "El resultado actual es utilizable, pero hay margen de mejora. Puedes aumentar las iteraciones para refinarlo o usarlo tal cual."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Error de ejecución",
     "taskCompletedTitle": "Tarea completada",
     "taskCompletedMessage": "El proyecto completó todas las iteraciones",
-    "maxIterationsTitle": "Máximo de iteraciones alcanzado",
-    "maxIterationsMessage": "La tarea se detuvo en la iteración {iteration}",
+    "maxIterationsTitle": "Fase completada",
+    "maxIterationsMessage": "Se alcanzó el máximo de iteraciones ({iteration}). Puedes aumentar las iteraciones para refinar, o usar el resultado actual.",
     "gitInitFailed": "No se pudo inicializar Git",
     "skipGitFailed": "No se pudo omitir la verificación"
   },

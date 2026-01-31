@@ -113,6 +113,7 @@ pub enum ProjectStatus {
     Pausing,
     Paused,
     Done,
+    Partial,
     Failed,
     Cancelled,
 }

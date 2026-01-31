@@ -74,7 +74,8 @@
       "done": "সম্পন্ন",
       "failed": "ব্যর্থ",
       "cancelled": "বাতিল",
-      "brainstorming": "ব্রেইনস্টর্ম"
+      "brainstorming": "ব্রেইনস্টর্ম",
+      "partial": "ধাপ সম্পন্ন"
     },
     "cli": "CLI",
     "iteration": "ইটারেশন",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "ধাপ সম্পন্ন",
+      "partialMessage": "সর্বোচ্চ পুনরাবৃত্তিতে পৌঁছেছে। ফলাফল ব্যবহারযোগ্য, তবে আরও পরিমার্জন করা যেতে পারে।"
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "পুনরাবৃত্তি বাড়িয়ে আবার চেষ্টা করুন",
+      "useCurrent": "বর্তমান ফলাফল ব্যবহার করুন",
+      "increaseIterationsPrompt": "নতুন সর্বোচ্চ পুনরাবৃত্তির সংখ্যা লিখুন (বর্তমান {current}, প্রস্তাবিত {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "ধাপ সম্পন্ন (পরিমার্জনযোগ্য)",
+      "partialMessage": "বর্তমান ফলাফল ব্যবহারযোগ্য, তবে উন্নতির সুযোগ আছে। পরিমার্জনের জন্য পুনরাবৃত্তি বাড়াতে পারেন, অথবা যেমন আছে তেমনই ব্যবহার করতে পারেন।"
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "এক্সিকিউশন ত্রুটি",
     "taskCompletedTitle": "কাজ সম্পন্ন",
     "taskCompletedMessage": "সব ইটারেশন সম্পন্ন হয়েছে",
-    "maxIterationsTitle": "সর্বোচ্চ ইটারেশন পৌঁছেছে",
-    "maxIterationsMessage": "ইটারেশন {iteration} এ কাজ থেমেছে",
+    "maxIterationsTitle": "পর্ব সম্পন্ন",
+    "maxIterationsMessage": "সর্বোচ্চ পুনরাবৃত্তি ({iteration})-এ পৌঁছেছে। আপনি উন্নতির জন্য পুনরাবৃত্তি বাড়াতে পারেন, অথবা বর্তমান ফলাফল ব্যবহার করতে পারেন।",
     "gitInitFailed": "Git শুরু করতে ব্যর্থ",
     "skipGitFailed": "Git চেক বাদ দিতে ব্যর্থ"
   },

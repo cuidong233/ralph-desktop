@@ -74,7 +74,8 @@
       "done": "Concluído",
       "failed": "Falhou",
       "cancelled": "Cancelado",
-      "brainstorming": "Brainstorming"
+      "brainstorming": "Brainstorming",
+      "partial": "Fase concluída"
     },
     "cli": "CLI",
     "iteration": "Iteração",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Fase concluída",
+      "partialMessage": "Atingiu o máximo de iterações. O resultado é utilizável, mas pode ser refinado."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Aumentar iterações e tentar novamente",
+      "useCurrent": "Usar o resultado atual",
+      "increaseIterationsPrompt": "Insira um novo máximo de iterações (atual {current}, sugerido {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Fase concluída (refinável)",
+      "partialMessage": "O resultado atual é utilizável, mas há margem para melhorar. Você pode aumentar as iterações para refiná‑lo, ou usá‑lo como está."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Erro de execução",
     "taskCompletedTitle": "Tarefa concluída",
     "taskCompletedMessage": "O projeto concluiu todas as iterações",
-    "maxIterationsTitle": "Máximo de iterações atingido",
-    "maxIterationsMessage": "A tarefa parou na iteração {iteration}",
+    "maxIterationsTitle": "Fase concluída",
+    "maxIterationsMessage": "Atingiu o máximo de iterações ({iteration}). Você pode aumentar as iterações para refinar ou usar o resultado atual.",
     "gitInitFailed": "Falha ao inicializar Git",
     "skipGitFailed": "Falha ao pular verificação"
   },

@@ -55,6 +55,7 @@ pub enum LoopState {
     Pausing { iteration: u32 },
     Paused { iteration: u32 },
     Completed { iteration: u32 },
+    MaxIterationsReached { iteration: u32 },
     Failed { iteration: u32 },
 }
 
@@ -352,7 +353,7 @@ impl LoopEngine {
             iteration,
         });
 
-        Ok(LoopState::Failed { iteration })
+        Ok(LoopState::MaxIterationsReached { iteration })
     }
 
     pub fn pause(&self) {

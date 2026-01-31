@@ -82,6 +82,24 @@ pub async fn set_project_skip_git_repo_check(
     Ok(state)
 }
 
+/// Update max iterations for a project's task
+#[tauri::command]
+pub async fn update_task_max_iterations(
+    project_id: String,
+    max_iterations: u32,
+) -> Result<ProjectState, String> {
+    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
+    let mut state = storage::load_project_state(&uuid).map_err(|e| e.to_string())?;
+    let task = state
+        .task
+        .as_mut()
+        .ok_or("No task configured for this project")?;
+    task.max_iterations = max_iterations;
+    state.updated_at = Utc::now();
+    storage::save_project_state(&state).map_err(|e| e.to_string())?;
+    Ok(state)
+}
+
 /// Initialize git repository in project directory
 #[tauri::command]
 pub async fn init_project_git_repo(project_id: String) -> Result<(), String> {

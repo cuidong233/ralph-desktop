@@ -23,6 +23,7 @@ pub fn run() {
             commands::create_project,
             commands::get_project,
             commands::set_project_skip_git_repo_check,
+            commands::update_task_max_iterations,
             commands::init_project_git_repo,
             commands::delete_project,
             commands::detect_installed_clis,

@@ -74,7 +74,8 @@
       "done": "Abgeschlossen",
       "failed": "Fehlgeschlagen",
       "cancelled": "Abgebrochen",
-      "brainstorming": "Brainstorming"
+      "brainstorming": "Brainstorming",
+      "partial": "Phase abgeschlossen"
     },
     "cli": "CLI",
     "iteration": "Iteration",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Phase abgeschlossen",
+      "partialMessage": "Maximale Iterationen erreicht. Das Ergebnis ist nutzbar, kann aber weiter verfeinert werden."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Iterationen erhöhen und erneut versuchen",
+      "useCurrent": "Aktuelles Ergebnis verwenden",
+      "increaseIterationsPrompt": "Neue maximale Iterationen eingeben (aktuell {current}, vorgeschlagen {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Phase abgeschlossen (verfeinerbar)",
+      "partialMessage": "Das aktuelle Ergebnis ist nutzbar, aber es gibt Verbesserungspotenzial. Du kannst die Iterationen erhöhen, um zu verfeinern, oder es so verwenden."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Ausführungsfehler",
     "taskCompletedTitle": "Aufgabe abgeschlossen",
     "taskCompletedMessage": "Projekt hat alle Iterationen abgeschlossen",
-    "maxIterationsTitle": "Maximale Iterationen erreicht",
-    "maxIterationsMessage": "Aufgabe stoppte nach Iteration {iteration}",
+    "maxIterationsTitle": "Phase abgeschlossen",
+    "maxIterationsMessage": "Maximale Iterationen ({iteration}) erreicht. Du kannst die Iterationen erhöhen, um weiter zu verfeinern, oder das aktuelle Ergebnis verwenden.",
     "gitInitFailed": "Git-Initialisierung fehlgeschlagen",
     "skipGitFailed": "Überspringen fehlgeschlagen"
   },

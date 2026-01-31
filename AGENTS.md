@@ -16,6 +16,7 @@ Ralph Desktop is a Tauri 2.x + Svelte 5 desktop app for orchestrating CLI coding
 ## Conventions
 - Keep UI aligned to the VS Code Dark Modern style (use the existing `bg-vscode-*`, `text-vscode-*`, `border-vscode` utility classes).
 - All user-facing strings should use `svelte-i18n` keys from `src/lib/i18n/locales`.
+- When adding or updating i18n keys, update **all locales** and use the system-installed **Codex CLI** to generate translations.
 - Brainstorm flow is AI-driven only; avoid re‑introducing preset/questionnaire flows unless explicitly requested.
 
 ## Data & Storage
@@ -43,4 +44,3 @@ Ralph Desktop is a Tauri 2.x + Svelte 5 desktop app for orchestrating CLI coding
 - E2E temp paths use `/tmp/ralph-e2e-*` and artifacts go to `./artifacts/e2e/`.
 - Set `E2E_HOST`/`E2E_PORT` if needed; default host is `localhost`.
 - `./artifacts` is gitignored; keep temporary outputs out of version control.
-

@@ -74,7 +74,8 @@
       "done": "Завершено",
       "failed": "Ошибка",
       "cancelled": "Отменено",
-      "brainstorming": "Брейншторм"
+      "brainstorming": "Брейншторм",
+      "partial": "Этап завершён"
     },
     "cli": "CLI",
     "iteration": "Итерация",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "Этап завершён",
+      "partialMessage": "Достигнут максимум итераций. Результат пригоден, но его можно доработать."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "Увеличить итерации и повторить",
+      "useCurrent": "Использовать текущий результат",
+      "increaseIterationsPrompt": "Введите новый максимум итераций (текущий {current}, рекомендуемый {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "Этап завершён (можно улучшить)",
+      "partialMessage": "Текущий результат пригоден, но есть возможность улучшить. Вы можете увеличить число итераций для доработки или использовать его как есть."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "Ошибка выполнения",
     "taskCompletedTitle": "Задача завершена",
     "taskCompletedMessage": "Проект завершил все итерации",
-    "maxIterationsTitle": "Достигнут лимит итераций",
-    "maxIterationsMessage": "Задача остановилась на итерации {iteration}",
+    "maxIterationsTitle": "Этап завершён",
+    "maxIterationsMessage": "Достигнуто максимальное число итераций ({iteration}). Вы можете увеличить число итераций для доработки или использовать текущий результат.",
     "gitInitFailed": "Не удалось инициализировать Git",
     "skipGitFailed": "Не удалось пропустить проверку"
   },

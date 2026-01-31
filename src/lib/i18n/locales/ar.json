@@ -74,7 +74,8 @@
       "done": "مكتمل",
       "failed": "فشل",
       "cancelled": "ملغي",
-      "brainstorming": "عصف ذهني"
+      "brainstorming": "عصف ذهني",
+      "partial": "اكتملت المرحلة"
     },
     "cli": "CLI",
     "iteration": "التكرار",
@@ -91,18 +92,25 @@
     "banner": {
       "completedTitle": "Completed",
       "failedTitle": "Error",
-      "meta": "Duration {duration} · Iterations {current}/{max}"
+      "meta": "Duration {duration} · Iterations {current}/{max}",
+      "partialTitle": "اكتملت المرحلة",
+      "partialMessage": "تم الوصول إلى الحد الأقصى للتكرارات. النتيجة قابلة للاستخدام لكنها يمكن تحسينها أكثر."
     },
     "actions": {
       "viewLogs": "View logs",
       "openProject": "Open project",
       "copySummary": "Copy summary",
       "copyError": "Copy error",
-      "retry": "Retry"
+      "retry": "Retry",
+      "increaseIterations": "زيادة التكرارات وإعادة المحاولة",
+      "useCurrent": "استخدام النتيجة الحالية",
+      "increaseIterationsPrompt": "أدخل الحد الأقصى الجديد للتكرارات (الحالي {current}، المقترح {suggested})"
     },
     "statusCard": {
       "completedTitle": "Task completed",
-      "failedTitle": "Task failed"
+      "failedTitle": "Task failed",
+      "partialTitle": "اكتملت المرحلة (قابلة للتحسين)",
+      "partialMessage": "النتيجة الحالية قابلة للاستخدام، لكن هناك مجال للتحسين. يمكنك زيادة التكرارات للتنقيح، أو استخدامها كما هي."
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
@@ -171,8 +179,8 @@
     "executionErrorTitle": "خطأ في التنفيذ",
     "taskCompletedTitle": "اكتملت المهمة",
     "taskCompletedMessage": "تم إكمال جميع التكرارات",
-    "maxIterationsTitle": "تم الوصول للحد الأقصى للتكرارات",
-    "maxIterationsMessage": "توقفت المهمة عند التكرار {iteration}",
+    "maxIterationsTitle": "اكتملت المرحلة",
+    "maxIterationsMessage": "تم الوصول إلى الحد الأقصى من التكرارات ({iteration}). يمكنك زيادة عدد التكرارات للتحسين، أو استخدام النتيجة الحالية.",
     "gitInitFailed": "فشل تهيئة Git",
     "skipGitFailed": "فشل تخطي الفحص"
   },
