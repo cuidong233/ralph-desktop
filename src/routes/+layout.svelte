@@ -2,12 +2,14 @@
   import '../app.css';
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
+  import '$lib/i18n';
   import { projects, currentProjectId, currentProject, updateProjects, updateCurrentProject, updateProjectStatus, selectProject } from '$lib/stores/projects';
   import { config, availableClis, updateConfig, setAvailableClis } from '$lib/stores/settings';
   import { loopState, setStatus, setIteration, addLog, setError } from '$lib/stores/loop';
   import { gitRepoCheckRequest, clearGitRepoCheck, requestGitRepoCheck } from '$lib/stores/gitRepoCheck';
   import { dequeueProject, isInQueue, markRunning } from '$lib/stores/queue';
   import { notifySuccess, notifyError, notifyWarning } from '$lib/stores/notifications';
+  import { initTheme } from '$lib/stores/theme';
   import * as api from '$lib/services/tauri';
   import { CODEX_GIT_REPO_CHECK_REQUIRED, startLoopWithGuard } from '$lib/services/loopStart';
   import { setLocaleFromConfig } from '$lib/i18n';
@@ -24,12 +26,16 @@
   let interruptedTasks = $state<RecoveryInfo[]>([]);
   let gitRepoBusy = $state(false);
 
+  // Ensure i18n has an initial locale before first render.
+  setLocaleFromConfig('system');
+
   onMount(async () => {
     try {
       // Load config
       const loadedConfig = await api.getConfig();
       updateConfig(loadedConfig);
       setLocaleFromConfig(loadedConfig.language);
+      initTheme(loadedConfig.theme);
 
       // Check if permissions need confirmation
       if (!loadedConfig.permissionsConfirmed) {
@@ -120,6 +126,7 @@
     await api.confirmPermissions();
     const loadedConfig = await api.getConfig();
     updateConfig(loadedConfig);
+    initTheme(loadedConfig.theme);
     showPermissionDialog = false;
   }
 

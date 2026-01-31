@@ -33,8 +33,8 @@
   });
 
   async function openUrl(url: string) {
-    const { open } = await import('@tauri-apps/plugin-opener');
-    await open(url);
+    const opener = await import('@tauri-apps/plugin-opener');
+    await opener.openUrl(url);
   }
 
   function copyToClipboard(text: string) {

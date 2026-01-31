@@ -1,4 +1,5 @@
-import { register, init, locale } from 'svelte-i18n';
+import { register, init, locale, addMessages } from 'svelte-i18n';
+import en from './locales/en.json';
 
 export const supportedLocales = [
   'en',
@@ -18,8 +19,11 @@ export const supportedLocales = [
 export type SupportedLocale = (typeof supportedLocales)[number];
 
 supportedLocales.forEach((lang) => {
+  if (lang === 'en') return;
   register(lang, () => import(`./locales/${lang}.json`));
 });
+
+addMessages('en', en);
 
 init({
   fallbackLocale: 'en',

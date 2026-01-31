@@ -112,9 +112,18 @@
   const availableCliCount = $derived($availableClis.filter(c => c.available).length);
 </script>
 
-<div class="flex h-screen bg-vscode-editor">
-  <!-- Sidebar -->
-  <div class="w-64 bg-vscode-sidebar border-r border-vscode flex flex-col">
+<div class="h-screen flex flex-col bg-vscode-editor">
+  <!-- Custom title bar (macOS overlay) -->
+  <div
+    class="h-8 flex items-center bg-vscode-editor border-b border-vscode px-4 pl-16 select-none"
+    data-tauri-drag-region
+  >
+    <div class="flex-1" data-tauri-drag-region></div>
+  </div>
+
+  <div class="flex flex-1 min-h-0">
+    <!-- Sidebar -->
+    <div class="w-64 bg-vscode-sidebar border-r border-vscode flex flex-col">
     <!-- Header -->
     <div class="px-4 py-3 flex items-center justify-between">
       <div>
@@ -167,8 +176,8 @@
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col overflow-hidden bg-vscode-editor">
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden bg-vscode-editor">
     {#if availableCliCount === 0}
       <!-- No CLI Installed -->
       <CliNotInstalled clis={$availableClis} />
@@ -195,6 +204,7 @@
         </div>
       </div>
     {/if}
+    </div>
   </div>
 </div>
 

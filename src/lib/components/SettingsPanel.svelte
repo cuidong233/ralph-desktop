@@ -1,5 +1,6 @@
 <script lang="ts">
   import { config, availableClis, updateConfig } from '$lib/stores/settings';
+  import { setTheme } from '$lib/stores/theme';
   import * as api from '$lib/services/tauri';
   import type { GlobalConfig, CliType, Theme } from '$lib/types';
   import { _, locale } from 'svelte-i18n';
@@ -19,6 +20,7 @@
     try {
       await api.saveConfig(localConfig);
       updateConfig(localConfig);
+      setTheme(localConfig.theme);
       setLocaleFromConfig(localConfig.language);
       onClose();
     } catch (error) {
@@ -53,7 +55,7 @@
     { value: 'bn', label: 'বাংলা' }
   ]);
 
-  const languageMap = $derived(() => {
+  const languageMap = $derived.by(() => {
     const map = new Map<string, string>();
     for (const option of languageOptions) {
       map.set(option.value, option.label);
@@ -72,7 +74,7 @@
     return value.split('-')[0];
   }
 
-  const systemLanguageLabel = $derived(() => {
+  const systemLanguageLabel = $derived.by(() => {
     if (typeof navigator === 'undefined') {
       return languageMap.get('en') || 'English';
     }
@@ -195,7 +197,7 @@
             </select>
             {#if localConfig.language === 'system'}
               <div class="text-xs text-vscode-muted mt-1">
-                {$_('settings.languageSystemHint', { language: systemLanguageLabel })}
+                {$_('settings.languageSystemHint', { values: { language: systemLanguageLabel } })}
               </div>
             {/if}
           </div>

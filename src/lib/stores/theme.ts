@@ -1,4 +1,5 @@
 import { writable, derived } from 'svelte/store';
+import { setTheme as setAppTheme } from '@tauri-apps/api/app';
 import type { Theme } from '../types';
 
 // Current theme setting
@@ -14,6 +15,27 @@ export const appliedTheme = derived(themeSetting, ($setting) => {
   }
   return $setting;
 });
+
+function resolveTheme(theme: Theme): Exclude<Theme, 'system'> {
+  if (theme === 'system') {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  }
+  return theme;
+}
+
+async function applyWindowTheme(theme: Theme) {
+  if (typeof window === 'undefined') return;
+  try {
+    const windowTheme = theme === 'system' ? null : theme;
+    await setAppTheme(windowTheme);
+  } catch (error) {
+    // Ignore when running outside of Tauri or if API is unavailable.
+    console.warn('Failed to apply window theme:', error);
+  }
+}
 
 // Initialize theme from config
 export function initTheme(theme: Theme) {
@@ -32,13 +54,11 @@ function applyTheme(theme: Theme) {
   if (typeof document === 'undefined') return;
 
   const root = document.documentElement;
+  const resolved = resolveTheme(theme);
 
-  if (theme === 'system') {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.classList.toggle('dark', isDark);
-  } else {
-    root.classList.toggle('dark', theme === 'dark');
-  }
+  root.dataset.theme = resolved;
+  root.classList.toggle('dark', resolved === 'dark');
+  void applyWindowTheme(theme);
 }
 
 // Listen for system theme changes
@@ -48,6 +68,8 @@ if (typeof window !== 'undefined') {
     themeSetting.subscribe(v => currentSetting = v)();
 
     if (currentSetting === 'system') {
+      const resolved = e.matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = resolved;
       document.documentElement.classList.toggle('dark', e.matches);
     }
   });
