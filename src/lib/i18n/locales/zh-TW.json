@@ -114,7 +114,17 @@
     },
     "summaryFallback": "暫無總結",
     "errorFallback": "未知錯誤",
-    "durationUnknown": "未知耗時"
+    "durationUnknown": "未知耗時",
+    "autoInitGit": {
+      "label": "初始化 Git 儲存庫",
+      "description": "在此程式啟動前，將會建立一個新的 Git 儲存庫。"
+    },
+    "autoCommit": {
+      "label": "在每次疊代後自動提交 (git commit)",
+      "description": "每次疊代完成後，將由 AI 自動生成提交訊息。",
+      "note": "提交僅限於本地，不會執行推送 (push)。",
+      "requiresGit": "需要 Git 儲存庫。"
+    }
   },
   "prompt": {
     "title": "Prompt 預覽",

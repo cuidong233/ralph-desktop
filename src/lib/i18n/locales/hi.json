@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "Git रिपॉजिटरी प्रारंभ करें",
+      "description": "शुरू करने से पहले एक नई Git रिपॉजिटरी बनाई जाएगी।"
+    },
+    "autoCommit": {
+      "label": "प्रत्येक इटरेशन के बाद ऑटो-कमिट (git commit)",
+      "description": "प्रत्येक इटरेशन के बाद AI द्वारा कमिट संदेश तैयार किया जाता है।",
+      "note": "कमिट केवल लोकल होंगे और उन्हें पुश नहीं किया जाएगा।",
+      "requiresGit": "इसके लिए Git रिपॉजिटरी होना अनिवार्य है।"
+    }
   },
   "prompt": {
     "title": "प्रॉम्प्ट पूर्वावलोकन",

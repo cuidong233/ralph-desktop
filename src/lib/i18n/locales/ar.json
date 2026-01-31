@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "تهيئة مستودع Git",
+      "description": "سيتم إنشاء مستودع Git جديد قبل البدء."
+    },
+    "autoCommit": {
+      "label": "التزام تلقائي بعد كل تكرار (git commit)",
+      "description": "يتم إنشاء رسالة الالتزام بواسطة الذكاء الاصطناعي بعد كل تكرار.",
+      "note": "عمليات الالتزام محلية فقط ولن يتم دفعها (push).",
+      "requiresGit": "يتطلب وجود مستودع Git."
+    }
   },
   "prompt": {
     "title": "معاينة Prompt",

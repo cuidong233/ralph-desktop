@@ -19,6 +19,7 @@ type LoopListener = (event: LoopEvent) => void;
 type E2EProject = {
   state: ProjectState;
   logs: string[];
+  isGitRepo: boolean;
   loop?: {
     iteration: number;
     maxIterations: number;
@@ -193,11 +194,19 @@ const e2eState = (() => {
         createdAt: ts,
         updatedAt: ts
       };
-      projects.set(id, { state, logs: [] });
+      projects.set(id, { state, logs: [], isGitRepo: false });
       return state;
     },
     getProject(id: string) {
       return ensureProject(id).state;
+    },
+    checkProjectGitRepo(projectId: string) {
+      return ensureProject(projectId).isGitRepo;
+    },
+    initProjectGitRepo(projectId: string) {
+      const project = ensureProject(projectId);
+      project.isGitRepo = true;
+      project.state.updatedAt = now();
     },
     setProjectSkipGitRepoCheck(projectId: string, skip: boolean) {
       const project = ensureProject(projectId);
@@ -211,6 +220,24 @@ const e2eState = (() => {
         throw new Error('No task configured for this project');
       }
       project.state.task.maxIterations = maxIterations;
+      project.state.updatedAt = now();
+      return project.state;
+    },
+    updateTaskAutoCommit(projectId: string, autoCommit: boolean) {
+      const project = ensureProject(projectId);
+      if (!project.state.task) {
+        throw new Error('No task configured for this project');
+      }
+      project.state.task.autoCommit = autoCommit;
+      project.state.updatedAt = now();
+      return project.state;
+    },
+    updateTaskAutoInit(projectId: string, autoInitGit: boolean) {
+      const project = ensureProject(projectId);
+      if (!project.state.task) {
+        throw new Error('No task configured for this project');
+      }
+      project.state.task.autoInitGit = autoInitGit;
       project.state.updatedAt = now();
       return project.state;
     },
@@ -290,6 +317,8 @@ const e2eState = (() => {
         prompt: generatedPrompt,
         cli,
         maxIterations,
+        autoCommit: true,
+        autoInitGit: true,
         completionSignal: '<done>COMPLETE</done>'
       };
       project.state.status = 'ready';
@@ -355,9 +384,30 @@ export async function updateTaskMaxIterations(
   return invoke('update_task_max_iterations', { projectId, maxIterations });
 }
 
+export async function updateTaskAutoCommit(
+  projectId: string,
+  autoCommit: boolean
+): Promise<ProjectState> {
+  if (isE2E) return e2eState.updateTaskAutoCommit(projectId, autoCommit);
+  return invoke('update_task_auto_commit', { projectId, autoCommit });
+}
+
+export async function updateTaskAutoInit(
+  projectId: string,
+  autoInitGit: boolean
+): Promise<ProjectState> {
+  if (isE2E) return e2eState.updateTaskAutoInit(projectId, autoInitGit);
+  return invoke('update_task_auto_init', { projectId, autoInitGit });
+}
+
 export async function initProjectGitRepo(projectId: string): Promise<void> {
-  if (isE2E) return;
+  if (isE2E) return e2eState.initProjectGitRepo(projectId);
   return invoke('init_project_git_repo', { projectId });
+}
+
+export async function checkProjectGitRepo(projectId: string): Promise<boolean> {
+  if (isE2E) return e2eState.checkProjectGitRepo(projectId);
+  return invoke('check_project_git_repo', { projectId });
 }
 
 export async function deleteProject(id: string): Promise<void> {

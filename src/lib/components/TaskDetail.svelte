@@ -17,6 +17,10 @@
 
   let starting = $state(false);
   let showPrompt = $state(false);
+  let autoCommit = $state(true);
+  let autoInitGit = $state(true);
+  let isGitRepo = $state(false);
+  let lastGitCheckId = $state<string | null>(null);
   const cliLabels: Record<string, string> = {
     claude: 'Claude Code',
     codex: 'Codex',
@@ -46,6 +50,9 @@
   const showStatusBanner = $derived(isDone || isFailed || isPartial);
   const showStatusCard = $derived(isDone || isFailed || isPartial);
   const canStart = $derived(['ready', 'failed', 'cancelled', 'partial'].includes(project.status));
+  const showGitInit = $derived(canStart && !isGitRepo && !!project.task);
+  const autoCommitEnabled = $derived(isGitRepo || autoInitGit);
+  const showAutoCommit = $derived(canStart && !!project.task);
   const summaryText = $derived(loopState.summary || $_('task.summaryFallback'));
   const elapsedText = $derived(formatDuration(loopState.elapsedMs));
   const maxIterations = $derived(project.task?.maxIterations || loopState.maxIterations || 0);
@@ -67,9 +74,61 @@
     isDone ? 'bg-vscode-success' : isPartial ? 'bg-vscode-info' : 'bg-vscode-error'
   );
 
+  $effect(() => {
+    if (!project?.id) return;
+    autoCommit = project.task?.autoCommit ?? true;
+    autoInitGit = project.task?.autoInitGit ?? true;
+    if (lastGitCheckId !== project.id) {
+      lastGitCheckId = project.id;
+      void refreshGitRepo(project.id);
+    }
+  });
+
+  async function refreshGitRepo(projectId: string) {
+    try {
+      isGitRepo = await api.checkProjectGitRepo(projectId);
+    } catch (error) {
+      console.error('Failed to check git repo:', error);
+      isGitRepo = false;
+    }
+  }
+
+  async function handleAutoInitChange() {
+    if (!project?.id) return;
+    const next = autoInitGit;
+    try {
+      const updated = await api.updateTaskAutoInit(project.id, next);
+      updateCurrentProject(updated);
+    } catch (error) {
+      console.error('Failed to update auto init git:', error);
+      autoInitGit = !next;
+    }
+  }
+
+  async function handleAutoCommitChange() {
+    if (!project?.id || !autoCommitEnabled) return;
+    const next = autoCommit;
+    try {
+      const updated = await api.updateTaskAutoCommit(project.id, next);
+      updateCurrentProject(updated);
+    } catch (error) {
+      console.error('Failed to update auto commit:', error);
+      autoCommit = !next;
+    }
+  }
+
   async function handleStart() {
     starting = true;
     try {
+      if (showGitInit && autoInitGit) {
+        await api.initProjectGitRepo(project.id);
+        const updated = await api.setProjectSkipGitRepoCheck(project.id, false);
+        updateCurrentProject(updated);
+        isGitRepo = true;
+      } else if (showGitInit && !autoInitGit && project.task?.cli === 'codex') {
+        const updated = await api.setProjectSkipGitRepoCheck(project.id, true);
+        updateCurrentProject(updated);
+      }
       await startLoopWithGuard(project.id);
     } catch (error) {
       console.error('Failed to start loop:', error);
@@ -336,7 +395,53 @@
   <!-- Control Bar -->
   <div class="p-4 bg-vscode-panel border-t border-vscode">
     <div class="flex items-center justify-between">
-      <div class="flex gap-2">
+      <div class="flex flex-col gap-3">
+        {#if showGitInit}
+          <div class="rounded-lg border border-vscode bg-vscode-panel px-3 py-2 text-xs text-vscode">
+            <div class="flex items-start gap-2">
+              <input
+                id={`auto-init-git-${project.id}`}
+                type="checkbox"
+                class="mt-0.5"
+                bind:checked={autoInitGit}
+                onchange={handleAutoInitChange}
+              />
+              <div class="min-w-0">
+                <label for={`auto-init-git-${project.id}`} class="text-vscode font-medium">
+                  {$_('task.autoInitGit.label')}
+                </label>
+                <div class="text-vscode-muted mt-1">{$_('task.autoInitGit.description')}</div>
+              </div>
+            </div>
+          </div>
+        {/if}
+
+        {#if showAutoCommit}
+          <div class={`mb-3 rounded-lg border border-vscode bg-vscode-panel px-3 py-2 text-xs text-vscode ${!autoCommitEnabled ? "opacity-50" : ""}`}>
+            <div class="flex items-start gap-2">
+              <input
+                id={`auto-commit-${project.id}`}
+                type="checkbox"
+                class="mt-0.5"
+                bind:checked={autoCommit}
+                disabled={!autoCommitEnabled}
+                onchange={handleAutoCommitChange}
+              />
+              <div class="min-w-0">
+                <label for={`auto-commit-${project.id}`} class="text-vscode font-medium">
+                  {$_('task.autoCommit.label')}
+                </label>
+                <div class="text-vscode-muted mt-1">{$_('task.autoCommit.description')}</div>
+                <div class="text-vscode-muted mt-1">{$_('task.autoCommit.note')}</div>
+                {#if !autoCommitEnabled}
+                  <div class="text-vscode-muted mt-1">{$_('task.autoCommit.requiresGit')}</div>
+                {/if}
+              </div>
+            </div>
+          </div>
+        {/if}
+
+        <div class="flex gap-2">
         {#if canStart}
           <button
             class="px-4 py-2 bg-vscode-accent bg-vscode-accent-hover text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
@@ -381,6 +486,8 @@
             <span>{$_('task.stop')}</span>
           </button>
         {/if}
+      </div>
+
       </div>
 
       {#if loopState.lastError}

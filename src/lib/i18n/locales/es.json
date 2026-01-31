@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "Inicializar repositorio Git",
+      "description": "Se creará un nuevo repositorio Git antes de comenzar."
+    },
+    "autoCommit": {
+      "label": "Confirmación automática tras cada iteración (git commit)",
+      "description": "La IA genera el mensaje de confirmación después de cada iteración.",
+      "note": "Las confirmaciones son solo locales y no se enviarán.",
+      "requiresGit": "Requiere un repositorio Git."
+    }
   },
   "prompt": {
     "title": "Vista previa del prompt",

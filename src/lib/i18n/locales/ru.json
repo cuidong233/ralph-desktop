@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "Инициализировать Git-репозиторий",
+      "description": "Перед началом работы будет создан новый Git-репозиторий."
+    },
+    "autoCommit": {
+      "label": "Автоматический коммит после каждой итерации (git commit)",
+      "description": "Сообщение к коммиту генерируется ИИ после каждой итерации.",
+      "note": "Коммиты создаются только локально и не отправляются в удаленный репозиторий.",
+      "requiresGit": "Требуется Git-репозиторий."
+    }
   },
   "prompt": {
     "title": "Предпросмотр Prompt",

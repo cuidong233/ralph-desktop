@@ -25,8 +25,18 @@ pub async fn start_loop(
 
     let _prompt_updated = ensure_autodecide_prompt(task);
 
+    let mut is_repo = is_git_repo(&project_path).await?;
+    if task.auto_init_git && !is_repo {
+        init_git_repo(&project_path).await?;
+        is_repo = true;
+        if project_state.skip_git_repo_check {
+            project_state.skip_git_repo_check = false;
+        }
+    } else if !task.auto_init_git && !is_repo && task.cli == CliType::Codex {
+        project_state.skip_git_repo_check = true;
+    }
+
     if task.cli == CliType::Codex && !project_state.skip_git_repo_check {
-        let is_repo = is_git_repo(&project_path).await?;
         if !is_repo {
             return Err(CODEX_GIT_REPO_CHECK_REQUIRED.to_string());
         }
@@ -50,6 +60,7 @@ pub async fn start_loop(
         task.cli,
         task.prompt.clone(),
         task.max_iterations,
+        task.auto_commit,
         task.completion_signal.clone(),
         iteration_timeout,
         idle_timeout,
@@ -147,6 +158,22 @@ fn ensure_autodecide_prompt(task: &mut TaskConfig) -> bool {
 
     task.prompt = format!("{policy}\n\n{}", task.prompt.trim());
     true
+}
+
+async fn init_git_repo(project_path: &PathBuf) -> Result<(), String> {
+    let output = Command::new("git")
+        .arg("init")
+        .current_dir(project_path)
+        .output()
+        .await
+        .map_err(|e| format!("Failed to run git: {}", e))?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        Err(format!("git init failed: {}", stderr.trim()))
+    }
 }
 
 async fn is_git_repo(project_path: &PathBuf) -> Result<bool, String> {

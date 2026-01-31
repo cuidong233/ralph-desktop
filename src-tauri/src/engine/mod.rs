@@ -7,6 +7,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter};
 use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::process::Command;
 use tokio::sync::Notify;
 
 pub mod ai_brainstorm;
@@ -68,6 +69,7 @@ pub struct LoopEngine {
     cli_type: CliType,
     prompt: String,
     max_iterations: u32,
+    auto_commit: bool,
     completion_signal: String,
     iteration_timeout: Option<Duration>,
     idle_timeout: Option<Duration>,
@@ -86,6 +88,7 @@ impl LoopEngine {
         cli_type: CliType,
         prompt: String,
         max_iterations: u32,
+        auto_commit: bool,
         completion_signal: String,
         iteration_timeout: Option<Duration>,
         idle_timeout: Option<Duration>,
@@ -98,6 +101,7 @@ impl LoopEngine {
             cli_type,
             prompt,
             max_iterations,
+            auto_commit,
             completion_signal,
             iteration_timeout,
             idle_timeout,
@@ -117,6 +121,130 @@ impl LoopEngine {
 
     fn emit_event(&self, event: LoopEvent) {
         let _ = self.app_handle.emit("loop-event", &event);
+    }
+
+    async fn commit_iteration_if_needed(&self, iteration: u32) -> Result<(), String> {
+        if !self.auto_commit {
+            return Ok(());
+        }
+
+        if !self.is_git_repo().await? {
+            return Ok(());
+        }
+
+        let status = self.run_git(&["status", "--porcelain"]).await?;
+        if status.trim().is_empty() {
+            return Ok(());
+        }
+
+        let diff_stat = self.run_git(&["diff", "--stat"]).await.unwrap_or_default();
+        let diff_full = self.run_git(&["diff"]).await.unwrap_or_default();
+        let diff = Self::truncate_for_prompt(&diff_full, 4000);
+
+        let message = match self.generate_commit_message(iteration, &diff_stat, &diff).await {
+            Ok(msg) => msg,
+            Err(_) => format!("ralph: iteration {}", iteration),
+        };
+        let message = Self::normalize_commit_message(&message, iteration);
+
+        self.run_git(&["add", "-A"]).await?;
+        let _ = self.run_git(&["commit", "-m", message.as_str()]).await?;
+        Ok(())
+    }
+
+    async fn generate_commit_message(&self, iteration: u32, diff_stat: &str, diff: &str) -> Result<String, String> {
+        let prompt = format!(
+            "Generate a concise git commit message for iteration {iteration}.
+Rules:
+- Output only the commit message (single line).
+- Max 72 characters.
+- Use imperative mood.
+
+Diff summary:
+{diff_stat}
+
+Diff:
+{diff}
+"
+        );
+
+        let adapter = get_adapter(self.cli_type);
+        let options = CommandOptions {
+            skip_git_repo_check: self.skip_git_repo_check,
+        };
+        let mut cmd = adapter.build_readonly_command(&prompt, &self.project_path, options);
+        let output = cmd.output().await.map_err(|e| format!("Failed to run CLI: {e}"))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Commit message generation failed: {}", stderr.trim()));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        Ok(stdout.trim().to_string())
+    }
+
+    async fn run_git(&self, args: &[&str]) -> Result<String, String> {
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&self.project_path)
+            .args(args)
+            .output()
+            .await
+            .map_err(|e| format!("Failed to run git: {e}"))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("git {} failed: {}", args.join(" "), stderr.trim()));
+        }
+
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    }
+
+    async fn is_git_repo(&self) -> Result<bool, String> {
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&self.project_path)
+            .arg("rev-parse")
+            .arg("--is-inside-work-tree")
+            .output()
+            .await
+            .map_err(|e| format!("Failed to run git: {e}"))?;
+
+        if !output.status.success() {
+            return Ok(false);
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        Ok(stdout.trim() == "true")
+    }
+
+    fn normalize_commit_message(raw: &str, iteration: u32) -> String {
+        let mut line = raw
+            .lines()
+            .map(|l| l.trim())
+            .find(|l| !l.is_empty())
+            .unwrap_or("")
+            .trim_matches('`')
+            .trim_matches('"')
+            .trim_matches('\'')
+            .to_string();
+        if line.is_empty() {
+            line = format!("ralph: iteration {}", iteration);
+        }
+        if line.chars().count() > 72 {
+            line = line.chars().take(72).collect();
+        }
+        line
+    }
+
+    fn truncate_for_prompt(input: &str, max_chars: usize) -> String {
+        if input.chars().count() <= max_chars {
+            return input.to_string();
+        }
+        let mut truncated: String = input.chars().take(max_chars).collect();
+        truncated.push_str("\n... (truncated) ...");
+        truncated
     }
 
     pub async fn start(&self) -> Result<LoopState, String> {
@@ -310,6 +438,18 @@ impl LoopEngine {
                 }
             }
 
+            // Wait for process to finish
+            let _ = child.wait().await;
+
+            if let Err(err) = self.commit_iteration_if_needed(iteration).await {
+                self.emit_event(LoopEvent::Output {
+                    project_id: self.project_id.clone(),
+                    iteration,
+                    content: format!("[auto-commit] {}", err),
+                    is_stderr: true,
+                });
+            }
+
             if completed {
                 self.emit_event(LoopEvent::Completed {
                     project_id: self.project_id.clone(),
@@ -317,9 +457,6 @@ impl LoopEngine {
                 });
                 return Ok(LoopState::Completed { iteration });
             }
-
-            // Wait for process to finish
-            let _ = child.wait().await;
 
             // Check pause after iteration
             if self.pause_requested.load(Ordering::SeqCst) {

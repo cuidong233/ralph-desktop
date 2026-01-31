@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "Git-Repository initialisieren",
+      "description": "Vor dem Start wird ein neues Git-Repository erstellt."
+    },
+    "autoCommit": {
+      "label": "Automatischer Commit nach jeder Iteration (git commit)",
+      "description": "Die Commit-Nachricht wird nach jeder Iteration von der KI generiert.",
+      "note": "Commits erfolgen nur lokal und werden nicht gepusht.",
+      "requiresGit": "Erfordert ein Git-Repository."
+    }
   },
   "prompt": {
     "title": "Prompt-Vorschau",

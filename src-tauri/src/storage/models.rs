@@ -134,6 +134,14 @@ pub struct BrainstormAnswer {
     pub answered_at: DateTime<Utc>,
 }
 
+fn default_auto_commit() -> bool {
+    false
+}
+
+fn default_auto_init_git() -> bool {
+    false
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskConfig {
@@ -141,6 +149,10 @@ pub struct TaskConfig {
     pub design_doc_path: Option<String>,
     pub cli: CliType,
     pub max_iterations: u32,
+    #[serde(default = "default_auto_commit")]
+    pub auto_commit: bool,
+    #[serde(default = "default_auto_init_git")]
+    pub auto_init_git: bool,
     pub completion_signal: String,
 }
 
@@ -151,6 +163,8 @@ impl Default for TaskConfig {
             design_doc_path: None,
             cli: CliType::Claude,
             max_iterations: 50,
+            auto_commit: default_auto_commit(),
+            auto_init_git: default_auto_init_git(),
             completion_signal: "<done>COMPLETE</done>".to_string(),
         }
     }

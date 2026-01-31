@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "গিট রিপোজিটরি ইনিশিয়ালাইজ করুন",
+      "description": "কাজ শুরু করার আগে একটি নতুন গিট রিপোজিটরি তৈরি করা হবে।"
+    },
+    "autoCommit": {
+      "label": "প্রতিটি ইটারেশনের পর অটো-কমিট (git commit)",
+      "description": "প্রতিটি ইটারেশনের পর এআই (AI) দ্বারা কমিট মেসেজ তৈরি করা হবে।",
+      "note": "কমিটগুলো শুধুমাত্র লোকাল থাকবে এবং পুশ করা হবে না।",
+      "requiresGit": "এর জন্য একটি গিট রিপোজিটরি প্রয়োজন।"
+    }
   },
   "prompt": {
     "title": "প্রম্পট প্রিভিউ",

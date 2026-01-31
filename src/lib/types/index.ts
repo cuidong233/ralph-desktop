@@ -93,6 +93,8 @@ export interface TaskConfig {
   designDocPath?: string;
   cli: CliType;
   maxIterations: number;
+  autoCommit?: boolean;
+  autoInitGit?: boolean;
   completionSignal: string;
 }
 

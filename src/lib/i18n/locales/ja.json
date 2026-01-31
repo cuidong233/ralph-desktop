@@ -114,7 +114,17 @@
     },
     "summaryFallback": "Summary unavailable",
     "errorFallback": "Unknown error",
-    "durationUnknown": "Unknown duration"
+    "durationUnknown": "Unknown duration",
+    "autoInitGit": {
+      "label": "Git リポジトリを初期化",
+      "description": "開始前に新しい Git リポジトリを作成します。"
+    },
+    "autoCommit": {
+      "label": "各イテレーション後の自動コミット (git commit)",
+      "description": "イテレーションごとに AI がコミットメッセージを自動生成します。",
+      "note": "コミットはローカルのみに保存され、プッシュはされません。",
+      "requiresGit": "Git リポジトリが必要です。"
+    }
   },
   "prompt": {
     "title": "Prompt プレビュー",

@@ -88,6 +88,16 @@
     "resume": "继续",
     "stop": "停止",
     "stopConfirm": "确定要停止吗？这将立即终止当前执行。",
+    "autoInitGit": {
+      "label": "初始化 Git 仓库",
+      "description": "开始前会自动创建 Git 仓库。"
+    },
+    "autoCommit": {
+      "label": "每轮迭代自动提交（git commit）",
+      "description": "提交信息由 AI 每轮自动生成。",
+      "note": "仅本地提交，不会自动 push。",
+      "requiresGit": "需要 Git 仓库才能自动提交。"
+    },
     "errorPrefix": "错误：",
     "banner": {
       "completedTitle": "已完成",

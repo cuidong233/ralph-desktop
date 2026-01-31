@@ -1,6 +1,7 @@
 use super::*;
 use crate::engine::ai_brainstorm::{run_ai_brainstorm, AiBrainstormResponse, ConversationMessage};
 use crate::security;
+use tokio::process::Command;
 use std::path::PathBuf;
 
 /// List all projects with synced status
@@ -98,6 +99,66 @@ pub async fn update_task_max_iterations(
     state.updated_at = Utc::now();
     storage::save_project_state(&state).map_err(|e| e.to_string())?;
     Ok(state)
+}
+
+/// Update auto-commit setting for a project's task
+#[tauri::command]
+pub async fn update_task_auto_commit(
+    project_id: String,
+    auto_commit: bool,
+) -> Result<ProjectState, String> {
+    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
+    let mut state = storage::load_project_state(&uuid).map_err(|e| e.to_string())?;
+    let task = state
+        .task
+        .as_mut()
+        .ok_or("No task configured for this project")?;
+    task.auto_commit = auto_commit;
+    state.updated_at = Utc::now();
+    storage::save_project_state(&state).map_err(|e| e.to_string())?;
+    Ok(state)
+}
+
+/// Update auto-init git setting for a project's task
+#[tauri::command]
+pub async fn update_task_auto_init(
+    project_id: String,
+    auto_init_git: bool,
+) -> Result<ProjectState, String> {
+    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
+    let mut state = storage::load_project_state(&uuid).map_err(|e| e.to_string())?;
+    let task = state
+        .task
+        .as_mut()
+        .ok_or("No task configured for this project")?;
+    task.auto_init_git = auto_init_git;
+    state.updated_at = Utc::now();
+    storage::save_project_state(&state).map_err(|e| e.to_string())?;
+    Ok(state)
+}
+
+
+
+/// Check if project directory is a git repository
+#[tauri::command]
+pub async fn check_project_git_repo(project_id: String) -> Result<bool, String> {
+    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
+    let state = storage::load_project_state(&uuid).map_err(|e| e.to_string())?;
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&state.path)
+        .arg("rev-parse")
+        .arg("--is-inside-work-tree")
+        .output()
+        .await
+        .map_err(|e| format!("Failed to run git: {}", e))?;
+
+    if !output.status.success() {
+        return Ok(false);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    Ok(stdout.trim() == "true")
 }
 
 /// Initialize git repository in project directory
@@ -216,6 +277,8 @@ pub async fn complete_ai_brainstorm(
         design_doc_path: None,
         cli,
         max_iterations,
+        auto_commit: true,
+        auto_init_git: true,
         completion_signal: "<done>COMPLETE</done>".to_string(),
     });
 
