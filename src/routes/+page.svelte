@@ -17,12 +17,16 @@
     setIteration,
     setError,
     setStatus,
+    markEnded,
+    setSummary,
+    markStarted,
   } from "$lib/stores/loop";
   import { config, availableClis } from "$lib/stores/settings";
   import * as api from "$lib/services/tauri";
   import { open } from "@tauri-apps/plugin-dialog";
   import type { ProjectState, CliType } from "$lib/types";
   import ProjectList from "$lib/components/ProjectList.svelte";
+  import SessionList from "$lib/components/SessionList.svelte";
   import TaskDetail from "$lib/components/TaskDetail.svelte";
   import AiBrainstorm from "$lib/components/AiBrainstorm.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
@@ -133,6 +137,32 @@
       if (p.execution) {
         setIteration(p.id, p.execution.currentIteration);
         if (p.execution.lastError) setError(p.id, p.execution.lastError);
+
+        // Restore persisted elapsedMs and summary (for history after app restart)
+        if (p.execution.startedAt) {
+          markStarted(p.id, new Date(p.execution.startedAt));
+        }
+        if (p.execution.completedAt) {
+          markEnded(p.id, new Date(p.execution.completedAt));
+        }
+        // Override with persisted elapsedMs if available
+        if (
+          p.execution.elapsedMs !== undefined &&
+          p.execution.elapsedMs !== null
+        ) {
+          const { loopStates } = await import("$lib/stores/loop");
+          loopStates.update((states) => ({
+            ...states,
+            [p.id]: {
+              ...states[p.id],
+              elapsedMs: p.execution!.elapsedMs ?? null,
+            },
+          }));
+        }
+        // Restore persisted summary
+        if (p.execution.summary) {
+          setSummary(p.id, p.execution.summary);
+        }
       }
       setStatus(p.id, p.status);
 
@@ -192,6 +222,56 @@
         removeProject(id);
       } catch (error) {
         console.error("Failed to delete project:", error);
+      }
+    }
+  }
+
+  // Session management handlers
+  async function handleCreateSession() {
+    if (!$currentProject) return;
+
+    // Prompt for name? or just default?
+    const defaultName = `Session ${($currentProject.sessions?.length || 0) + 1}`;
+    const name = prompt("Enter session name:", defaultName);
+
+    if (name) {
+      try {
+        const updated = await api.createSession($currentProject.id, name);
+        updateCurrentProject(updated);
+        // Refresh logs for new session (empty)
+        resetLoop(updated.id);
+      } catch (error) {
+        console.error("Failed to create session:", error);
+      }
+    }
+  }
+
+  async function handleSwitchSession(sessionId: string) {
+    if (!$currentProject || $currentProject.activeSessionId === sessionId)
+      return;
+
+    try {
+      const updated = await api.switchSession($currentProject.id, sessionId);
+      updateCurrentProject(updated);
+      // Reload logs for switched session
+      loadProjectDetails(updated.id);
+    } catch (error) {
+      console.error("Failed to switch session:", error);
+    }
+  }
+
+  async function handleDeleteSession(sessionId: string) {
+    if (!$currentProject) return;
+    if (confirm("Are you sure you want to delete this session?")) {
+      try {
+        const updated = await api.deleteSession($currentProject.id, sessionId);
+        updateCurrentProject(updated);
+        // If active session changed (was deleted), reload details
+        if (updated.activeSessionId !== sessionId) {
+          loadProjectDetails(updated.id);
+        }
+      } catch (error) {
+        console.error("Failed to delete session:", error);
       }
     }
   }
@@ -272,7 +352,11 @@
       </div>
 
       <!-- Project List -->
-      <div class="flex-1 overflow-y-auto">
+      <div
+        class="flex-1 overflow-y-auto {$currentProject
+          ? 'h-1/2 flex-none border-b border-vscode'
+          : ''}"
+      >
         <ProjectList
           projects={$projects}
           selectedId={$currentProjectId}
@@ -280,6 +364,19 @@
           onDelete={handleDeleteProject}
         />
       </div>
+
+      <!-- Session List (if project selected) -->
+      {#if $currentProject}
+        <div class="flex-1 overflow-y-auto bg-vscode-sidebar">
+          <SessionList
+            sessions={$currentProject.sessions || []}
+            activeSessionId={$currentProject.activeSessionId}
+            onSelect={handleSwitchSession}
+            onDelete={handleDeleteSession}
+            onCreate={handleCreateSession}
+          />
+        </div>
+      {/if}
 
       <!-- Status Bar -->
       <QueueStatus />
