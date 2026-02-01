@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "Aguardando saída de logs...",
-    "scrollBottom": "Ir para o final"
+    "scrollBottom": "Ir para o final",
+    "thinkingProcess": "🧠 Processo de Pensamento"
   },
   "cliMissing": {
     "title": "Nenhuma ferramenta CLI de IA detectada",

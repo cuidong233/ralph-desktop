@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "等待日志输出...",
-    "scrollBottom": "滚动到底部"
+    "scrollBottom": "滚动到底部",
+    "thinkingProcess": "🧠 思考过程"
   },
   "cliMissing": {
     "title": "未检测到 AI CLI 工具",
