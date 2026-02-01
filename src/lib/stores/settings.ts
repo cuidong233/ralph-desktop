@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import type { GlobalConfig, CliInfo } from '../types';
 
 const defaultConfig: GlobalConfig = {
@@ -23,4 +23,10 @@ export function updateConfig(newConfig: GlobalConfig) {
 
 export function setAvailableClis(clis: CliInfo[]) {
   availableClis.set(clis);
+  // Also verify if current defaultCli is actually available
+  // Check if current defaultCli is available
+  const current = get(config);
+  if (clis.length > 0 && !clis.find(cli => cli.cliType === current.defaultCli)) {
+    // Logic to update default could go here if desired, but for now we just keeping it safe
+  }
 }

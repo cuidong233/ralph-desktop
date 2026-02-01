@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "等待日誌輸出...",
-    "scrollBottom": "捲動到底部"
+    "scrollBottom": "捲動到底部",
+    "thinkingProcess": "🧠 思考過程"
   },
   "cliMissing": {
     "title": "未偵測到 AI CLI 工具",

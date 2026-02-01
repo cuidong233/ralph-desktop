@@ -1,5 +1,5 @@
-use crate::storage::{self, models::ProjectStatus};
 use crate::engine::logs::cleanup_all_logs;
+use crate::storage::{self, models::ProjectStatus};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -63,33 +63,4 @@ pub async fn cancel_interrupted_task(project_id: String) -> Result<(), String> {
 pub async fn cleanup_logs() -> Result<u32, String> {
     let config = storage::load_config().map_err(|e| e.to_string())?;
     cleanup_all_logs(config.log_retention_days)
-}
-
-/// Get log files for a project
-#[tauri::command]
-pub async fn get_project_logs(project_id: String) -> Result<Vec<String>, String> {
-    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
-    let project_dir = storage::get_project_dir(&uuid).map_err(|e| e.to_string())?;
-    let logs_dir = project_dir.join("logs");
-
-    if !logs_dir.exists() {
-        return Ok(Vec::new());
-    }
-
-    let mut log_files = Vec::new();
-    let entries = std::fs::read_dir(&logs_dir).map_err(|e| e.to_string())?;
-
-    for entry in entries.flatten() {
-        if let Some(name) = entry.file_name().to_str() {
-            if name.ends_with(".log") {
-                log_files.push(name.to_string());
-            }
-        }
-    }
-
-    // Sort by name (which is timestamp-based)
-    log_files.sort();
-    log_files.reverse(); // Most recent first
-
-    Ok(log_files)
 }

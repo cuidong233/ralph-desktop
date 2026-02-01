@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "ログ出力を待機中...",
-    "scrollBottom": "最下部へ"
+    "scrollBottom": "最下部へ",
+    "thinkingProcess": "🧠 思考プロセス"
   },
   "cliMissing": {
     "title": "AI CLI が検出されません",

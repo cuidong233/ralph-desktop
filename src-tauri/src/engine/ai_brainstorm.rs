@@ -239,15 +239,29 @@ fn parse_ai_response(output: &str) -> Result<AiBrainstormResponse, String> {
         Err(_) => {
             // If no JSON found, treat the output as a plain text question
             // This is a fallback for when AI doesn't follow JSON format
-            let trimmed = output.trim();
+            let mut trimmed = output.trim();
+
+            // Strip <thinking>...</thinking> logs if present
+            // We do a simple pass to remove these blocks
+            let clean_output;
+            if let Some(start_tag) = trimmed.find("<thinking>") {
+                if let Some(end_tag) = trimmed.find("</thinking>") {
+                    if end_tag > start_tag {
+                        // Remove the thinking block
+                        let before = &trimmed[..start_tag];
+                        let after = &trimmed[end_tag + 11..]; // 11 is len of </thinking>
+                        clean_output = format!("{}{}", before, after);
+                        trimmed = clean_output.trim();
+                    }
+                }
+            }
 
             // Check if it looks like a completion
             if trimmed.contains("<done>COMPLETE</done>") {
                 let (question, description) = match detect_language(trimmed) {
-                    DetectedLanguage::Zh => (
-                        "需求收集完成".to_string(),
-                        "已生成任务 prompt".to_string(),
-                    ),
+                    DetectedLanguage::Zh => {
+                        ("需求收集完成".to_string(), "已生成任务 prompt".to_string())
+                    }
                     DetectedLanguage::Ja => (
                         "要件確定".to_string(),
                         "タスクの prompt を生成しました".to_string(),
@@ -454,7 +468,9 @@ fn contains_kana(input: &str) -> bool {
 }
 
 fn contains_hangul(input: &str) -> bool {
-    input.chars().any(|ch| ('\u{AC00}'..='\u{D7AF}').contains(&ch))
+    input
+        .chars()
+        .any(|ch| ('\u{AC00}'..='\u{D7AF}').contains(&ch))
 }
 
 fn contains_cjk(input: &str) -> bool {
@@ -564,7 +580,9 @@ async fn call_other_cli(
     skip_git_repo_check: bool,
 ) -> Result<String, String> {
     let adapter = get_adapter(cli_type);
-    let options = CommandOptions { skip_git_repo_check };
+    let options = CommandOptions {
+        skip_git_repo_check,
+    };
     let mut cmd = adapter.build_readonly_command(prompt, working_dir, options);
     let output = cmd
         .output()
@@ -638,7 +656,9 @@ fn collect_brainstorm_output(cli_type: CliType, stdout: &str) -> (String, Option
 mod tests {
     use super::ConversationMessage;
     use crate::storage;
-    use crate::storage::models::{BrainstormState, CliType, GlobalConfig, ProjectState, ProjectStatus};
+    use crate::storage::models::{
+        BrainstormState, CliType, GlobalConfig, ProjectState, ProjectStatus,
+    };
     use chrono::Utc;
     use std::env;
     use std::ffi::{OsStr, OsString};

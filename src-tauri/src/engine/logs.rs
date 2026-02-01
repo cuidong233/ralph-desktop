@@ -1,4 +1,4 @@
-use crate::storage::{get_project_dir, ensure_project_dir};
+use crate::storage::{ensure_project_dir, get_project_dir};
 use chrono::Utc;
 use std::fs::{self, File};
 use std::io::{BufWriter, Write};
@@ -75,6 +75,32 @@ impl LogManager {
     /// Get the current log path
     pub fn get_log_path(&self) -> Option<&PathBuf> {
         self.log_path.as_ref()
+    }
+
+    /// Retrieve the content of the latest log session
+    pub fn get_latest_session_log(&self) -> Result<Vec<String>, String> {
+        let project_dir = get_project_dir(&self.project_id).map_err(|e| e.to_string())?;
+        let logs_dir = project_dir.join("logs");
+
+        if !logs_dir.exists() {
+            return Ok(Vec::new());
+        }
+
+        let mut entries: Vec<_> = fs::read_dir(&logs_dir)
+            .map_err(|e| e.to_string())?
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().extension().map_or(false, |ext| ext == "log"))
+            .collect();
+
+        // Sort by name (timestamp) descending
+        entries.sort_by_key(|e| std::cmp::Reverse(e.file_name()));
+
+        if let Some(latest) = entries.first() {
+            let content = fs::read_to_string(latest.path()).map_err(|e| e.to_string())?;
+            return Ok(content.lines().map(|s| s.to_string()).collect());
+        }
+
+        Ok(Vec::new())
     }
 }
 

@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "Waiting for log output...",
-    "scrollBottom": "Scroll to bottom"
+    "scrollBottom": "Scroll to bottom",
+    "thinkingProcess": "🧠 Thinking Process"
   },
   "cliMissing": {
     "title": "No AI CLI tools detected",

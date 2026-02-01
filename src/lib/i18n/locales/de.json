@@ -139,7 +139,8 @@
   },
   "log": {
     "waiting": "Warte auf Log-Ausgabe...",
-    "scrollBottom": "Zum Ende scrollen"
+    "scrollBottom": "Zum Ende scrollen",
+    "thinkingProcess": "🧠 Denkprozess"
   },
   "cliMissing": {
     "title": "Keine AI-CLI gefunden",

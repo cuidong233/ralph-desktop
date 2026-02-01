@@ -142,6 +142,7 @@ impl CliAdapter for ClaudeCodeAdapter {
     }
 
     fn parse_output_line(&self, line: &str) -> ParsedLine {
+        // Try to parse as JSON first
         if let Ok(value) = serde_json::from_str::<Value>(line) {
             let mut content = extract_text(&value).unwrap_or_default();
             let role = value.get("role").and_then(|v| v.as_str());
@@ -156,7 +157,12 @@ impl CliAdapter for ClaudeCodeAdapter {
                 }
             }
             if content.trim().is_empty() {
-                content = line.to_string();
+                // If content extraction failed but it's a valid JSON, use the raw line
+                // unless it's a known non-content message type
+                let event_type = value.get("type").and_then(|v| v.as_str()).unwrap_or("");
+                if event_type != "ping" && event_type != "progress" {
+                    content = line.to_string();
+                }
             }
 
             ParsedLine {
@@ -165,6 +171,8 @@ impl CliAdapter for ClaudeCodeAdapter {
                 is_assistant,
             }
         } else {
+            // Fallback for non-JSON lines
+            // Some CLIs might output plain text debug info or partial JSON
             ParsedLine {
                 content: line.to_string(),
                 line_type: LineType::Text,

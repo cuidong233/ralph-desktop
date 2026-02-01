@@ -1,8 +1,8 @@
 use super::*;
 use crate::engine::ai_brainstorm::{run_ai_brainstorm, AiBrainstormResponse, ConversationMessage};
 use crate::security;
-use tokio::process::Command;
 use std::path::PathBuf;
+use tokio::process::Command;
 
 /// List all projects with synced status
 #[tauri::command]
@@ -137,8 +137,6 @@ pub async fn update_task_auto_init(
     Ok(state)
 }
 
-
-
 /// Check if project directory is a git repository
 #[tauri::command]
 pub async fn check_project_git_repo(project_id: String) -> Result<bool, String> {
@@ -257,8 +255,8 @@ pub async fn ai_brainstorm_chat(
         config.default_cli,
         state.skip_git_repo_check,
     )
-        .await
-        .map_err(|e| security::sanitize_log(&e))
+    .await
+    .map_err(|e| security::sanitize_log(&e))
 }
 
 /// Complete AI brainstorming with the generated prompt
@@ -294,4 +292,12 @@ pub async fn complete_ai_brainstorm(
     storage::save_project_state(&state).map_err(|e| e.to_string())?;
 
     Ok(state)
+}
+
+/// Get logs for a project (latest session)
+#[tauri::command]
+pub async fn get_project_logs(project_id: String) -> Result<Vec<String>, String> {
+    let uuid = Uuid::parse_str(&project_id).map_err(|e| e.to_string())?;
+    let manager = crate::engine::logs::LogManager::new(uuid);
+    manager.get_latest_session_log()
 }
