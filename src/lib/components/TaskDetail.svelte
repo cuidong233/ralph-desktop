@@ -3,7 +3,7 @@
   import type { LoopStoreState } from "$lib/stores/loop";
   import * as api from "$lib/services/tauri";
   import { startLoopWithGuard } from "$lib/services/loopStart";
-  import { updateCurrentProject } from "$lib/stores/projects";
+  import { currentProjectId, updateCurrentProject } from "$lib/stores/projects";
   import { _ } from "svelte-i18n";
   import LogViewer from "./LogViewer.svelte";
   import PromptEditor from "./PromptEditor.svelte";
@@ -268,8 +268,12 @@
   }
 
   async function handlePromptSave(prompt: string) {
-    const updated = await api.updateTaskPrompt(project.id, prompt);
-    updateCurrentProject(updated);
+    const savingProjectId = project.id;
+    const updated = await api.updateTaskPrompt(savingProjectId, prompt);
+    // Avoid overwriting the selected project if user switched tabs during async save.
+    if ($currentProjectId === savingProjectId) {
+      updateCurrentProject(updated);
+    }
   }
 </script>
 
