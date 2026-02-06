@@ -268,12 +268,8 @@
   }
 
   async function handlePromptSave(prompt: string) {
-    try {
-      const updated = await api.updateTaskPrompt(project.id, prompt);
-      updateCurrentProject(updated);
-    } catch (error) {
-      console.error("Failed to update prompt:", error);
-    }
+    const updated = await api.updateTaskPrompt(project.id, prompt);
+    updateCurrentProject(updated);
   }
 </script>
 

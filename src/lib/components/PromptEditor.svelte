@@ -13,6 +13,7 @@
   let editedPrompt = $state('');
   let isEditing = $state(false);
   let saving = $state(false);
+  let saveError = $state<string | null>(null);
 
   $effect(() => {
     if (!isEditing) {
@@ -21,14 +22,18 @@
   });
 
   function handleEdit() {
+    saveError = null;
     isEditing = true;
   }
 
   async function handleSave() {
     saving = true;
+    saveError = null;
     try {
       await onSave?.(editedPrompt);
       isEditing = false;
+    } catch (error) {
+      saveError = error instanceof Error ? error.message : String(error);
     } finally {
       saving = false;
     }
@@ -37,6 +42,7 @@
   function handleCancel() {
     editedPrompt = project.task?.prompt || '';
     isEditing = false;
+    saveError = null;
     onCancel?.();
   }
 
@@ -92,6 +98,11 @@
         bind:value={editedPrompt}
         placeholder={$_('prompt.placeholder')}
       ></textarea>
+      {#if saveError}
+        <div class="mt-2 text-xs text-vscode-error">
+          {$_('task.errorPrefix')} {saveError}
+        </div>
+      {/if}
     {:else}
       <div class="max-h-64 overflow-y-auto">
         <pre class="whitespace-pre-wrap font-mono text-sm text-vscode bg-vscode-editor p-3 rounded-lg border border-vscode">{editedPrompt || $_('prompt.empty')}</pre>
